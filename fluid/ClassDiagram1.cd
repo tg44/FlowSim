@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="fluid.D3DPanel" Collapsed="true">
+    <Position X="4" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQCAIAACACAAAAAARAAAAABAAQAAAQAAAkAEAAAAAAA=</HashCode>
+      <FileName>D3DPanel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="fluid.D3DrawBG" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="4" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACEAAAGBEAAAAAABAAAAEAAAAAAAQAAAkAAAAAAAAA=</HashCode>
+      <FileName>D3DrawBG.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="fluid.D3DrawModels" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="2.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACGAAAGBGAIQAAAAQAAAkAAAAAgAQAAAlgAAAgAAAA=</HashCode>
+      <FileName>D3DrawModels.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="fluid.Form1" Collapsed="true">
+    <Position X="2.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAAAAAACAAAAAAAACAAAACAAAIAAAAIAAAAAAAAAA=</HashCode>
+      <FileName>Form1.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="fluid.Program" Collapsed="true">
+    <Position X="2.25" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="fluid.SharpDXRender" Collapsed="true">
+    <Position X="0.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAEAAAAAAAAAAAAAAAAAQAAAgAAAAAAAAAAAAAA=</HashCode>
+      <FileName>SharpDXRender.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="fluid.D3DrawModelsSources.Camera">
+    <Position X="12.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACCAAIAgAAAAAAAAAAIAAggAABAAAAAAAAA=</HashCode>
+      <FileName>D3DrawModelsSources\Camera.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="fluid.D3DrawModelsSources.ColorShader">
+    <Position X="9.25" Y="1.5" Width="1.5" />
+    <NestedTypes>
+      <Struct Name="fluid.D3DrawModelsSources.ColorShader.Vertex" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>D3DrawModelsSources\ColorShader.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="fluid.D3DrawModelsSources.ColorShader.MatrixBuffer" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>D3DrawModelsSources\ColorShader.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAkAAAAQAAAAAQAgAAEEABAAEAAAAAAIABAAAAAAAAA=</HashCode>
+      <FileName>D3DrawModelsSources\ColorShader.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="fluid.D3DrawModelsSources.Light" Collapsed="true">
+    <Position X="4" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAgAACAAAAAAAAAAAAAAAACAAAAAgAA=</HashCode>
+      <FileName>D3DrawModelsSources\Light.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="fluid.D3DrawModelsSources.LightShader">
+    <Position X="7.75" Y="1.5" Width="1.5" />
+    <NestedTypes>
+      <Struct Name="fluid.D3DrawModelsSources.LightShader.Vertex" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>D3DrawModelsSources\LightShader.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="fluid.D3DrawModelsSources.LightShader.MatrixBuffer" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>D3DrawModelsSources\LightShader.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+      <Struct Name="fluid.D3DrawModelsSources.LightShader.LightBuffer" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>D3DrawModelsSources\LightShader.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>BAkAAAAQAACAAQAgAAEEABAAEAAAAAAIAhAAAAAAAAA=</HashCode>
+      <FileName>D3DrawModelsSources\LightShader.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="fluid.D3DrawModelsSources.Model">
+    <Position X="10.75" Y="1.5" Width="1.5" />
+    <NestedTypes>
+      <Struct Name="fluid.D3DrawModelsSources.Model.ModelFormat" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>D3DrawModelsSources\Model.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Struct>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>ACAAEAAAAAAAAQAAAAAIEREAAQAAAAAAADAAAACAEAA=</HashCode>
+      <FileName>D3DrawModelsSources\Model.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="fluid.Properties.Resources" Collapsed="true">
+    <Position X="4" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAABEAAAAQAAAAAAAAAAAAAAAIA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="fluid.Properties.Settings" Collapsed="true">
+    <Position X="5.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAIAAAAAABAAAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="fluid.D3Drawer" Collapsed="true">
+    <Position X="0.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAACAAAAAAAAAAAAAAAIAAAAAAAAAAAE=</HashCode>
+      <FileName>D3Drawer.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
