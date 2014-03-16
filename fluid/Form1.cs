@@ -62,13 +62,13 @@ namespace fluid
         private void controlZoomIn(object sender, EventArgs e)
         {
             Vector3 lastPos = d3DPanel1.Camera.GetPosition();
-            d3DPanel1.Camera.ModPositionInSphere(0, 0, 0.3f);
+            d3DPanel1.Camera.ModPositionInSphere(0, 0, -1f);
         }
 
         private void controlZoomOut(object sender, EventArgs e)
         {
             Vector3 lastPos = d3DPanel1.Camera.GetPosition();
-            d3DPanel1.Camera.ModPositionInSphere(0, 0, -0.3f);
+            d3DPanel1.Camera.ModPositionInSphere(0, 0, 1f);
         }
 
         private void timer1_Tick(object sender, EventArgs e)

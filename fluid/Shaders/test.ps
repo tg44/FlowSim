@@ -1,0 +1,91 @@
+﻿
+struct VertexShaderOutput
+{
+    float4 Position		: POSITION0;
+    float3 texC			: TEXCOORD0;
+    float4 pos			: TEXCOORD1;
+};
+
+float3 StepSize;
+int Iterations=200;
+
+int Side = 2;
+Texture2D Front;
+Texture2D Back;
+Texture3D Volume;
+
+SamplerState FrontS
+{
+	Filter = MIN_MAG_MIP_LINEAR;
+
+	AddressU = Wrap;				// border sampling in U
+    AddressV = Wrap;				// border sampling in V
+};
+
+SamplerState BackS
+{
+	Filter = MIN_MAG_MIP_LINEAR;
+	
+	AddressU = Wrap;				// border sampling in U
+    AddressV = Wrap;				// border sampling in V
+};
+
+SamplerState VolumeS
+{
+    Filter = MIN_MAG_MIP_LINEAR;
+
+	AddressU = Wrap;				// border sampling in U
+    AddressV = Wrap;				// border sampling in V
+    AddressW = Wrap;
+};
+float4 VolumePixelShader(VertexShaderOutput input) : SV_TARGET
+{ 
+	//calculate projective texture coordinates
+	//used to project the front and back position textures onto the cube
+	float2 texC = input.pos.xy /= input.pos.w;
+	texC.x =  0.5f*texC.x + 0.5f; 
+	texC.y = -0.5f*texC.y + 0.5f;  
+	
+    float3 front = Front.Sample(FrontS, texC).xyz;
+    float3 back = Back.Sample(BackS, texC).xyz;
+    
+    float3 dir = normalize(back - front);
+    float4 pos = float4(front, 0);
+    
+    float4 dst = float4(0, 0, 0, 0);
+    float4 src = 0;
+    
+    float value = 0;
+	
+	float3 Step = dir * StepSize;
+    [unroll(3)]
+    for(int i = 0; i < Iterations; i++)
+    {
+		pos.w = 0;
+		value = Volume.Sample(VolumeS, pos).r;
+				
+		src = (float4)value;
+		src.a *= .1f; //reduce the alpha to have a more transparent result
+					  //this needs to be adjusted based on the step size
+					  //i.e. the more steps we take, the faster the alpha will grow	
+			
+		//Front to back blending
+		// dst.rgb = dst.rgb + (1 - dst.a) * src.a * src.rgb
+		// dst.a   = dst.a   + (1 - dst.a) * src.a		
+		src.rgb *= src.a;
+		dst = (1.0f - dst.a)*src + dst;		
+		
+		//break from the loop when alpha gets high enough
+		if(dst.a >= .95f)
+			break;	
+		
+		//advance the current position
+		pos.xyz += Step;
+		
+		//break if the position is greater than <1, 1, 1>
+		if(pos.x > 1.0f || pos.y > 1.0f || pos.z > 1.0f)
+			break;
+    }
+    
+    return dst;
+}
