@@ -28,6 +28,7 @@ namespace fluid
             swapChainDescription.ModeDescription = new ModeDescription(form.ClientSize.Width, form.ClientSize.Height, new Rational(60, 1), Format.R8G8B8A8_UNorm);
             swapChainDescription.OutputHandle = form.Handle;
             swapChainDescription.SampleDescription = new SampleDescription(1, 0);
+            swapChainDescription.SwapEffect = SwapEffect.Discard;
             swapChainDescription.Usage = Usage.RenderTargetOutput;
 
             //Creating Device
@@ -48,12 +49,12 @@ namespace fluid
 
             _deviceContext.ClearRenderTargetView(backbufferview, new Color4(0.3921f, 0.5843f, 0.9294f, 1f));
             _swapChain.Present(0, PresentFlags.None);
-
+            /*
             _device.Dispose();
             _swapChain.Dispose();
             _deviceContext.Dispose();
             backbufferview.Dispose();
-            backbuffer.Dispose();
+            backbuffer.Dispose();*/
 
         }
     }

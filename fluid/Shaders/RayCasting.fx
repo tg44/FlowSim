@@ -10,45 +10,33 @@ int Side = 2;
 
 float4 ScaleFactor;
 
-texture2D Front;
-texture2D Back;
-texture3D Volume;
+Texture2D Front;
+Texture2D Back;
+Texture3D Volume;
 
-sampler2D FrontS = sampler_state
+SamplerState FrontS
 {
-	Texture = <Front>;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = LINEAR;
-	
-	AddressU = Border;				// border sampling in U
-    AddressV = Border;				// border sampling in V
-    BorderColor = float4(0,0,0,0);	// outside of border should be black
+	Filter = MIN_MAG_MIP_LINEAR;
+
+	AddressU = Wrap;				
+    AddressV = Wrap;				
 };
 
-sampler2D BackS = sampler_state
+SamplerState BackS
 {
-	Texture = <Back>;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = LINEAR;
+	Filter = MIN_MAG_MIP_LINEAR;
 	
-	AddressU = Border;				// border sampling in U
-    AddressV = Border;				// border sampling in V
-    BorderColor = float4(0,0,0,0);	// outside of border should be black
+	AddressU = Wrap;				
+    AddressV = Wrap;				
 };
 
-sampler3D VolumeS = sampler_state
+SamplerState VolumeS
 {
-	Texture = <Volume>;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = LINEAR;
-	
-	AddressU = Border;				// border sampling in U
-    AddressV = Border;				// border sampling in V
-    AddressW = Border;
-    BorderColor = float4(0,0,0,0);	// outside of border should be black
+    Filter = MIN_MAG_MIP_LINEAR;
+
+	AddressU = Wrap;				
+    AddressV = Wrap;				
+    AddressW = Wrap;
 };
 
 
@@ -65,7 +53,7 @@ struct VertexShaderOutput
     float4 pos			: TEXCOORD1;
 };
 
-VertexShaderOutput PositionVS(VertexShaderInput input)
+VertexShaderOutput VolumeVertexShader(VertexShaderInput input)
 {
     VertexShaderOutput output;
 	
@@ -77,25 +65,25 @@ VertexShaderOutput PositionVS(VertexShaderInput input)
     return output;
 }
 
-float4 PositionPS(VertexShaderOutput input) : COLOR0
+float4 PositionPS(VertexShaderOutput input) : SV_TARGET
 {
     return float4(input.texC, 1.0f);
 }
 
-float4 WireFramePS(VertexShaderOutput input) : COLOR0
+float4 WireFramePS(VertexShaderOutput input) : SV_TARGET
 {
     return float4(1.0f, .5f, 0.0f, .85f);
 }
 
 //draws the front or back positions, or the ray direction through the volume
-float4 DirectionPS(VertexShaderOutput input) : COLOR0
+float4 DirectionPS(VertexShaderOutput input) : SV_TARGET
 {
 	float2 texC = input.pos.xy /= input.pos.w;
 	texC.x =  0.5f*texC.x + 0.5f; 
 	texC.y = -0.5f*texC.y + 0.5f;
 	
-    float3 front = tex2D(FrontS, texC).rgb;
-    float3 back = tex2D(BackS, texC).rgb;
+    float3 front = Front.Sample(FrontS, texC).rgb;
+    float3 back = Back.Sample(BackS, texC).rgb;
 	
 	if(Side == 0)
 	{
@@ -109,7 +97,7 @@ float4 DirectionPS(VertexShaderOutput input) : COLOR0
     return float4(back - front, .9f);
 }
 
-float4 RayCastSimplePS(VertexShaderOutput input) : COLOR0
+float4 VolumePixelShader(VertexShaderOutput input) : SV_TARGET
 { 
 	//calculate projective texture coordinates
 	//used to project the front and back position textures onto the cube
@@ -117,8 +105,8 @@ float4 RayCastSimplePS(VertexShaderOutput input) : COLOR0
 	texC.x =  0.5f*texC.x + 0.5f; 
 	texC.y = -0.5f*texC.y + 0.5f;  
 	
-    float3 front = tex2D(FrontS, texC).xyz;
-    float3 back = tex2D(BackS, texC).xyz;
+    float3 front = Front.Sample(FrontS, texC).xyz;
+    float3 back = Back.Sample(BackS, texC).xyz;
     
     float3 dir = normalize(back - front);
     float4 pos = float4(front, 0);
@@ -129,11 +117,11 @@ float4 RayCastSimplePS(VertexShaderOutput input) : COLOR0
     float value = 0;
 	
 	float3 Step = dir * StepSize;
-    
+    [unroll(3)]
     for(int i = 0; i < Iterations; i++)
     {
 		pos.w = 0;
-		value = tex3Dlod(VolumeS, pos).r;
+		value = Volume.Sample(VolumeS, pos).r;
 				
 		src = (float4)value;
 		src.a *= .1f; //reduce the alpha to have a more transparent result
@@ -161,38 +149,46 @@ float4 RayCastSimplePS(VertexShaderOutput input) : COLOR0
     return dst;
 }
 
-technique RenderPosition
+technique11 RenderPosition
 {
-    pass Pass1
+    pass Pass0
     {		
-        VertexShader = compile vs_2_0 PositionVS();
-        PixelShader = compile ps_2_0 PositionPS();
+		SetVertexShader(CompileShader(vs_4_0, PositionVS()));
+		SetPixelShader(CompileShader(ps_4_0, PositionPS()));
+        //VertexShader = compile vs_2_0 PositionVS();
+        //PixelShader = compile ps_2_0 PositionPS();
     }
 }
 
-technique RayCastDirection
+technique11 RayCastDirection
 {
-    pass Pass1
+    pass Pass0
     {		
-        VertexShader = compile vs_2_0 PositionVS();
-        PixelShader = compile ps_2_0 DirectionPS();
+		SetVertexShader(CompileShader(vs_4_0, PositionVS()));
+		SetPixelShader(CompileShader(ps_4_0, DirectionPS()));
+        //VertexShader = compile vs_2_0 PositionVS();
+        //PixelShader = compile ps_2_0 DirectionPS();
     }
 }
 
-technique RayCastSimple
+technique11 RayCastSimple
 {
-    pass Pass1
+    pass Pass0
     {		
-        VertexShader = compile vs_3_0 PositionVS();
-        PixelShader = compile ps_3_0 RayCastSimplePS();
+		SetVertexShader(CompileShader(vs_4_0, PositionVS()));
+		SetPixelShader(CompileShader(ps_4_0, RayCastSimplePS()));
+        //VertexShader = compile vs_3_0 PositionVS();
+        //PixelShader = compile ps_3_0 RayCastSimplePS();
     }
 }
 
-technique WireFrame
+technique11 WireFrame
 {
-    pass Pass1
+    pass Pass0
     {		
-        VertexShader = compile vs_2_0 PositionVS();
-        PixelShader = compile ps_2_0 WireFramePS();
+		SetVertexShader(CompileShader(vs_4_0, PositionVS()));
+		SetPixelShader(CompileShader(ps_4_0, WireFramePS()));
+        //VertexShader = compile vs_2_0 PositionVS();
+        //PixelShader = compile ps_2_0 WireFramePS();
     }
 }

@@ -36,7 +36,6 @@ namespace fluid.D3DrawModelsSources
 
         Effect eff;
         EffectTechnique efftech;
-        EffectPass[] passes;
         //EffectShaderResourceVariable texture;
 
         public bool Initialize(SharpDX.Direct3D11.Device device, IntPtr windowHandler)
@@ -68,24 +67,14 @@ namespace fluid.D3DrawModelsSources
             // Set the vertex input layout.
             deviceContext.InputAssembler.InputLayout = Layout;
 
-            // Set the vertex and pixel shaders that will be used to render this triangle.
-            //deviceContext.VertexShader.Set(VertexShader);
-            //deviceContext.PixelShader.Set(PixelShader);
-
             EffectPass renderpass = efftech.GetPassByIndex(0);
-            renderpass.Apply(deviceContext);
-            deviceContext.DrawIndexedInstanced(36 * 3, indexCount, 0, 0, 0);
-            //deviceContext.DrawIndexed(indexCount, 0, 0);
-            /*
-            foreach (var pass in passes)
-            {
-                pass.Apply(deviceContext);
-                // Render the triangle.
-                deviceContext.DrawIndexed(indexCount, 0, 0);
-                //deviceContext.DrawIndexedInstanced(36*3, indexCount, 0, 0, 0);
 
+            for (int i = 0; i < efftech.Description.PassCount; ++i)
+            {
+                renderpass.Apply(deviceContext);
+                deviceContext.DrawIndexed(indexCount, 0, 0);
             }
-            */
+
             
         }
 
@@ -93,51 +82,11 @@ namespace fluid.D3DrawModelsSources
         {
             try
             {
-                
-                // Transpose the matrices to prepare them for shader.
-                worldMatrix.Transpose();
-                viewMatrix.Transpose();
-                projectionMatrix.Transpose();
-                
+
                 eff.GetVariableByName("worldMatrix").AsMatrix().SetMatrix(worldMatrix);
                 eff.GetVariableByName("viewMatrix").AsMatrix().SetMatrix(viewMatrix);
                 eff.GetVariableByName("projectionMatrix").AsMatrix().SetMatrix(projectionMatrix);
-                
-                /*
-                var matrixBuffer = new MatrixBuffer()
-                {
-                    world = worldMatrix,
-                    view = viewMatrix,
-                    projection = projectionMatrix
-                };
-                EffectConstantBuffer frameConstantBuffer =  this.eff.GetConstantBufferByIndex(0);
-                */
-                /* set values */
-                //frameConstantBuffer.Set<MatrixBuffer>(0, matrixBuffer);
-               // frameConstantBuffer.Set
-                /*
-                // Lock the constant buffer so it can be written to.
-                DataStream mappedResource;
-                deviceContext.MapSubresource(ConstantMatrixBuffer, MapMode.WriteDiscard, SharpDX.Direct3D11.MapFlags.None, out mappedResource);
 
-                // Copy the matrices into the constant buffer.
-                var matrixBuffer = new MatrixBuffer()
-                {
-                    world = worldMatrix,
-                    view = viewMatrix,
-                    projection = projectionMatrix
-                };
-                mappedResource.Write(matrixBuffer);
-
-                // Unlock the constant buffer.
-                deviceContext.UnmapSubresource(ConstantMatrixBuffer, 0);
-
-                // Set the position of the constant buffer in the vertex shader.
-                var bufferNumber = 0;
-
-                // Finally set the constant buffer in the vertex shader with the updated values.
-                deviceContext.VertexShader.SetConstantBuffer(bufferNumber, ConstantMatrixBuffer);
-                */
                 return true;
             }
             catch (Exception ex)
@@ -186,14 +135,10 @@ namespace fluid.D3DrawModelsSources
                 vsFileName = ShadersFilePath + vsFileName;
 
                 // Compile the vertex shader code.
-                var effectShaderByteCode = ShaderBytecode.CompileFromFile(vsFileName, "RayCastingVertexShader", "fx_5_0", ShaderFlags.Debug, EffectFlags.None);
+                var effectShaderByteCode = ShaderBytecode.CompileFromFile(vsFileName,"fx_5_0", ShaderFlags.None, EffectFlags.None);
                 eff = new Effect(device, effectShaderByteCode);
                 efftech = eff.GetTechniqueByName("RenderColor");
-                passes = Enumerable.Range(0, efftech.Description.PassCount).Select(i => efftech.GetPassByIndex(i)).ToArray();
 
-
-                // Now setup the layout of the data that goes into the shader.
-                // This setup needs to match the VertexType structure in the Model and in the shader.
                 var inputElements = new InputElement[]
 				{
 					new InputElement()
@@ -217,26 +162,8 @@ namespace fluid.D3DrawModelsSources
 						InstanceDataStepRate = 0
 					}
 				};
-
-                // Create the vertex input the layout.
-                Layout = new InputLayout(device, passes[0].Description.Signature, inputElements);
-
-                // Release the vertex and pixel shader buffers, since they are no longer needed.
-                effectShaderByteCode.Dispose();
-
-                // Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
-                var matrixBufferDesc = new BufferDescription()
-                {
-                    Usage = ResourceUsage.Dynamic,
-                    SizeInBytes = Utilities.SizeOf<Matrix>(),
-                    BindFlags = BindFlags.ConstantBuffer,
-                    CpuAccessFlags = CpuAccessFlags.Write,
-                    OptionFlags = ResourceOptionFlags.None,
-                    StructureByteStride = 0
-                };
-
-                // Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-                ConstantMatrixBuffer = new Buffer(device, matrixBufferDesc);
+               
+                Layout = new InputLayout(device, efftech.GetPassByIndex(0).Description.Signature, inputElements);
 
                 return true;
             }

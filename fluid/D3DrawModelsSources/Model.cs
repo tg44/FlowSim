@@ -181,7 +181,7 @@ namespace fluid.D3DrawModelsSources
         private void RenderBuffers(DeviceContext deviceContext)
         {
             // Set the vertex buffer to active in the input assembler so it can be rendered.
-            deviceContext.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(VertexBuffer, Utilities.SizeOf<LightShader.Vertex>(), 0));
+            deviceContext.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(VertexBuffer, 32, 0));
             // Set the index buffer to active in the input assembler so it can be rendered.
             deviceContext.InputAssembler.SetIndexBuffer(IndexBuffer, Format.R32_UInt, 0);
             // Set the type of the primitive that should be rendered from this vertex buffer, in this case triangles.
