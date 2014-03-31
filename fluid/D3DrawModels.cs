@@ -17,11 +17,10 @@ namespace fluid
         private ColorShader ColorShader { get; set; }
         private LightShader LightShader { get; set; }
         private Light Light { get; set; }
-        private VolumeShader VolumeShader { get; set; }
 
         private Triangle Triangle { get; set; }
         private Model Floor { get; set; }
-        private Model VolumeBox { get; set; }
+        private Volume Volume { get; set; }
 
         private DX11 DX11 { get; set; }
 
@@ -44,12 +43,12 @@ namespace fluid
 
             // Set the initial position of the camera.
             _camera.SetPosition(1, 1, 6);
-            
+
             // Create the model object.
             Box = new Model();
 
             // Initialize the model object.
-            if(!Box.Initialize(DX11.Device, "Cube.txt", "seafloor.dds"))
+            if (!Box.Initialize(DX11.Device, "Cube.txt", "seafloor.dds"))
                 Console.Out.WriteLine("Error on cube load!");
 
             Floor = new Model();
@@ -64,8 +63,8 @@ namespace fluid
 
             // Initialize the color shader object.
             ColorShader.Initialize(DX11.Device, DX11.Handle);
-            
-            
+
+
             LightShader = new LightShader();
             LightShader.Initialize(DX11.Device, DX11.Handle);
 
@@ -76,14 +75,11 @@ namespace fluid
             Light.SetDirection(10, -10, -10);
 
             // Create the model object.
-            VolumeBox = new Model();
+            Volume = new Volume();
 
             // Initialize the model object.
-            if (!VolumeBox.Initialize(DX11.Device, "Cube.txt", "seafloor.dds"))
-                Console.Out.WriteLine("Error on cube load!");
-
-            VolumeShader = new VolumeShader();
-            VolumeShader.Initialize(DX11.Device, DX11.Handle);
+            if (!Volume.Initialize(DX11))
+                Console.Out.WriteLine("Error on volume load!");
 
             return true;
         }
@@ -99,13 +95,13 @@ namespace fluid
         }
         void Rotate()
         {
-            r += (float)Math.PI * 0.01f;
+            r += (float)Math.PI * 0.001f;
         }
 
         private bool Render(float rotation)
         {
-            
-            DX11.BeginScene(0.5f,0.5f,0.5f,1.0f);
+
+            DX11.BeginScene(0.5f, 0.5f, 0.5f, 1.0f);
 
             _camera.Render();
 
@@ -116,22 +112,22 @@ namespace fluid
 
             // Rotate the world matrix by the rotation value so that the triangle will spin.
             Matrix.RotationY(rotation, out worldMatrix);
-            worldMatrix=Matrix.Multiply(worldMatrix, Matrix.Translation(0, 1, 0));
-            
-            Triangle.Render(DX11.DeviceContext);
+            worldMatrix = Matrix.Multiply(worldMatrix, Matrix.Translation(0, 1, 0));
+
+            /*Triangle.Render(DX11.DeviceContext);
             /*if (!VolumeShader.Render(DX11.DeviceContext, Triangle.IndexCount, worldMatrix, viewMatrix, projectionMatrix))
                 return false;*/
-            if (!ColorShader.Render(DX11.DeviceContext, Triangle.IndexCount, worldMatrix, viewMatrix, projectionMatrix))
+            /*if (!ColorShader.Render(DX11.DeviceContext, Triangle.IndexCount, worldMatrix, viewMatrix, projectionMatrix))
                 return false;
-            
+
             Box.Render(DX11.DeviceContext);
             if (!LightShader.Render(DX11.DeviceContext, Box.IndexCount, worldMatrix, viewMatrix, projectionMatrix, Box.Texture.TextureResource, Light.Direction, Light.DiffuseColor))
                 return false;
-
+            */
             Floor.Render(DX11.DeviceContext);
             if (!LightShader.Render(DX11.DeviceContext, Floor.IndexCount, DX11.WorldMatrix, viewMatrix, projectionMatrix, Floor.Texture.TextureResource, Light.Direction, Light.DiffuseColor))
                 return false;
-            
+            /*
             worldMatrix = Matrix.Multiply(worldMatrix, Matrix.Translation(3, 0, 3));
             //render the volume
             VolumeBox.Render(DX11.DeviceContext);
@@ -139,13 +135,14 @@ namespace fluid
                 return false;
 
             worldMatrix = Matrix.Multiply(worldMatrix, Matrix.Translation(-6, 0, -6));
-            VolumeBox.Render(DX11.DeviceContext);
-            if (!VolumeShader.Render(DX11.DeviceContext, VolumeBox.IndexCount, worldMatrix, viewMatrix, projectionMatrix))
-                return false;
-            
+            */
+
+            Volume.Render(worldMatrix, viewMatrix, projectionMatrix);
+
             DX11.EndScene();
             return true;
         }
+
 
         void D3Drawer.Dispose() { }
 

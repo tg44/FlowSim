@@ -147,9 +147,9 @@ namespace fluid.D3DrawModelsSources
             try
             {
                 // Compile the vertex shader code.
-                var vertexShaderByteCode = ShaderBytecode.CompileFromFile(vsFileName, "ColorVertexShader", "vs_4_0", ShaderFlags.None, EffectFlags.None);
+                var vertexShaderByteCode = ShaderBytecode.CompileFromFile(vsFileName, "ColorVertexShader", "vs_4_0", ShaderFlags.Debug, EffectFlags.None);
                 // Compile the pixel shader code.
-                var pixelShaderByteCode = ShaderBytecode.CompileFromFile(psFileName, "ColorPixelShader", "ps_4_0", ShaderFlags.None, EffectFlags.None);
+                var pixelShaderByteCode = ShaderBytecode.CompileFromFile(psFileName, "ColorPixelShader", "ps_4_0", ShaderFlags.Debug, EffectFlags.None);
 
                 // Create the vertex shader from the buffer.
                 VertexShader = new VertexShader(device, vertexShaderByteCode);

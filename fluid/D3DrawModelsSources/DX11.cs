@@ -19,14 +19,17 @@ namespace fluid.D3DrawModelsSources
         public SwapChain SwapChain { get; private set; }
         public Device Device { get; private set; }
         public DeviceContext DeviceContext { get; private set; }
-        private RenderTargetView RenderTargetView { get; set; }
+        public RenderTargetView RenderTargetView { get; private set; }
         private Texture2D DepthStencilBuffer { get; set; }
         public DepthStencilState DepthStencilState { get; set; }
-        private DepthStencilView DepthStencilView { get; set; }
+        public DepthStencilView DepthStencilView { get; private set; }
         private RasterizerState RasterState { get; set; }
         public Matrix ProjectionMatrix { get; private set; }
         public Matrix WorldMatrix { get; private set; }
         public Matrix OrthoMatrix { get; private set; }
+
+        public int Height { get; private set; }
+        public int Width { get; private set; }
 
         public IntPtr Handle { get; private set; }
         public float ScreenNear = 0.1f;
@@ -42,13 +45,16 @@ namespace fluid.D3DrawModelsSources
         {
             try
             {
+                this.Height = Height;
+                this.Width = Width;
+
                 Handle = windowHandle;
                 // Create a DirectX graphics interface factory.
                 var factory = new Factory();
                 // Use the factory to create an adapter for the primary graphics interface (video card).
                 var adapter = factory.GetAdapter(0);
                 // Get the primary adapter output (monitor).
-                var monitor = adapter.GetOutput(0);
+                var monitor = adapter.Outputs[0];
                 // Get modes that fit the DXGI_FORMAT_R8G8B8A8_UNORM display format for the adapter output (monitor).
                 var modes = monitor.GetDisplayModeList(Format.R8G8B8A8_UNorm, DisplayModeEnumerationFlags.Interlaced);
                 // Now go through all the display modes and find the one that matches the screen width and height.
@@ -109,7 +115,7 @@ namespace fluid.D3DrawModelsSources
                 // Create the swap chain, Direct3D device, and Direct3D device context.
                 Device device;
                 SwapChain swapChain;
-                Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.None, swapChainDesc, out device, out swapChain);
+                Device.CreateWithSwapChain(DriverType.Hardware, DeviceCreationFlags.Debug, swapChainDesc, out device, out swapChain);
 
                 Device = device;
                 SwapChain = swapChain;
@@ -227,8 +233,9 @@ namespace fluid.D3DrawModelsSources
 
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.Out.WriteLine(ex.Message);
                 return false;
             }
         }

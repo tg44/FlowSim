@@ -80,6 +80,12 @@
     <Reference Include="SharpDX.DXGI">
       <HintPath>C:\Program Files (x86)\SharpDX\Bin\DirectX11-Signed-net40\SharpDX.DXGI.dll</HintPath>
     </Reference>
+    <Reference Include="SharpDX.Toolkit">
+      <HintPath>C:\Program Files (x86)\SharpDX\Bin\DirectX11-Signed-net40\SharpDX.Toolkit.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Toolkit.Graphics">
+      <HintPath>C:\Program Files (x86)\SharpDX\Bin\DirectX11-Signed-net40\SharpDX.Toolkit.Graphics.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />

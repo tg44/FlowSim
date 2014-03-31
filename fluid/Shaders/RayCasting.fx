@@ -42,31 +42,38 @@ SamplerState VolumeS
 
 struct VertexShaderInput
 {
-    float4 Position : POSITION0;
-    float2 texC		: TEXCOORD0;
+    float4 Position : POSITION;
+    float2 texC		: TEXCOORD;
 };
 
 struct VertexShaderOutput
 {
-    float4 Position		: POSITION0;
+    float4 Position		: SV_POSITION;
     float3 texC			: TEXCOORD0;
     float4 pos			: TEXCOORD1;
+	//float4 color		: COLOR;
 };
 
 VertexShaderOutput VolumeVertexShader(VertexShaderInput input)
 {
-    VertexShaderOutput output;
-	
-    output.Position = mul(input.Position * ScaleFactor, WorldViewProj);
-    
-    output.texC = input.Position;
-    output.pos = output.Position;
+    VertexShaderOutput output= (VertexShaderOutput)0;
+	input.Position.w = 1.0f;
+		
+	output.Position = mul(input.Position, WorldViewProj);
+	//output.Position = input.Position;
+	//output.Position.w = 1.0f;
+	//output.texC = float4(0.0f, 0.0f, 0.0f, 0.0f);
+	//output.color.rgba = float4(1.0f,0.5f,1.0f,1.0f);
+	//output.pos = float4(0.0f, 0.0f, 0.0f, 0.0f);
+	output.texC = input.Position;
+	output.pos = output.Position;
 
     return output;
 }
 
 float4 PositionPS(VertexShaderOutput input) : SV_TARGET
 {
+	//return input.color;
     return float4(input.texC, 1.0f);
 }
 
@@ -117,7 +124,7 @@ float4 VolumePixelShader(VertexShaderOutput input) : SV_TARGET
     float value = 0;
 	
 	float3 Step = dir * StepSize;
-    [unroll(3)]
+    [unroll(20)]
     for(int i = 0; i < Iterations; i++)
     {
 		pos.w = 0;
@@ -148,23 +155,54 @@ float4 VolumePixelShader(VertexShaderOutput input) : SV_TARGET
     
     return dst;
 }
+/*
+RasterizerState WireframeRS
+{
+	FillMode = Wireframe;
+	CullMode = Back;
+	FrontCounterClockwise = false;
+};*/
+RasterizerState BackRS
+{
+	//FillMode = Normal;
+	//CullMode = Back;
+	FrontCounterClockwise = true;
+};
+RasterizerState FrontRS
+{
+	//FillMode = Normal;
+	//CullMode = Back;
+	FrontCounterClockwise = false;
+};
 
-technique11 RenderPosition
+technique11 RenderPositionBack
 {
     pass Pass0
     {		
-		SetVertexShader(CompileShader(vs_4_0, PositionVS()));
+		SetVertexShader(CompileShader(vs_4_0, VolumeVertexShader()));
 		SetPixelShader(CompileShader(ps_4_0, PositionPS()));
+		SetRasterizerState(BackRS);
         //VertexShader = compile vs_2_0 PositionVS();
         //PixelShader = compile ps_2_0 PositionPS();
     }
+}
+technique11 RenderPositionFront
+{
+	pass Pass0
+	{
+		SetVertexShader(CompileShader(vs_4_0, VolumeVertexShader()));
+		SetPixelShader(CompileShader(ps_4_0, PositionPS()));
+		SetRasterizerState(FrontRS);
+		//VertexShader = compile vs_2_0 PositionVS();
+		//PixelShader = compile ps_2_0 PositionPS();
+	}
 }
 
 technique11 RayCastDirection
 {
     pass Pass0
     {		
-		SetVertexShader(CompileShader(vs_4_0, PositionVS()));
+		SetVertexShader(CompileShader(vs_4_0, VolumeVertexShader()));
 		SetPixelShader(CompileShader(ps_4_0, DirectionPS()));
         //VertexShader = compile vs_2_0 PositionVS();
         //PixelShader = compile ps_2_0 DirectionPS();
@@ -175,8 +213,8 @@ technique11 RayCastSimple
 {
     pass Pass0
     {		
-		SetVertexShader(CompileShader(vs_4_0, PositionVS()));
-		SetPixelShader(CompileShader(ps_4_0, RayCastSimplePS()));
+		SetVertexShader(CompileShader(vs_4_0, VolumeVertexShader()));
+		SetPixelShader(CompileShader(ps_4_0, VolumePixelShader()));
         //VertexShader = compile vs_3_0 PositionVS();
         //PixelShader = compile ps_3_0 RayCastSimplePS();
     }
@@ -186,7 +224,7 @@ technique11 WireFrame
 {
     pass Pass0
     {		
-		SetVertexShader(CompileShader(vs_4_0, PositionVS()));
+		SetVertexShader(CompileShader(vs_4_0, VolumeVertexShader()));
 		SetPixelShader(CompileShader(ps_4_0, WireFramePS()));
         //VertexShader = compile vs_2_0 PositionVS();
         //PixelShader = compile ps_2_0 WireFramePS();

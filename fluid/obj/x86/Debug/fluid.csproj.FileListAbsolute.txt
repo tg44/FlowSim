@@ -29,3 +29,13 @@ D:\Dropbox\tanulas\BME\MSC 1. félév\onlab1\fluid\fluid\bin\Debug\SharpDX.Direc
 D:\Dropbox\tanulas\BME\MSC 1. félév\onlab1\fluid\fluid\bin\Debug\SharpDX.dll
 D:\Dropbox\tanulas\BME\MSC 1. félév\onlab1\fluid\fluid\bin\Debug\SharpDX.DXGI.dll
 D:\Dropbox\tanulas\BME\MSC 1. félév\onlab1\fluid\fluid\obj\x86\Debug\fluid.csprojResolveAssemblyReference.cache
+D:\Dropbox\tanulas\BME\MSC 1. félév\onlab1\fluid\fluid\bin\Debug\sharpdx_direct3d11_effects_x64.dll
+D:\Dropbox\tanulas\BME\MSC 1. félév\onlab1\fluid\fluid\bin\Debug\sharpdx_direct3d11_effects_x86.dll
+D:\Dropbox\tanulas\BME\MSC 1. félév\onlab1\fluid\fluid\bin\Debug\SharpDX.Direct3D11.Effects.dll
+D:\Dropbox\tanulas\BME\MSC 1. félév\onlab1\fluid\fluid\bin\Debug\SharpDX.Direct3D11.Effects.xml
+D:\Dropbox\tanulas\BME\MSC 1. félév\onlab1\fluid\fluid\bin\Debug\SharpDX.Toolkit.dll
+D:\Dropbox\tanulas\BME\MSC 1. félév\onlab1\fluid\fluid\bin\Debug\SharpDX.Toolkit.Graphics.dll
+D:\Dropbox\tanulas\BME\MSC 1. félév\onlab1\fluid\fluid\bin\Debug\SharpDX.Direct2D1.dll
+D:\Dropbox\tanulas\BME\MSC 1. félév\onlab1\fluid\fluid\bin\Debug\SharpDX.Toolkit.xml
+D:\Dropbox\tanulas\BME\MSC 1. félév\onlab1\fluid\fluid\bin\Debug\SharpDX.Toolkit.Graphics.xml
+D:\Dropbox\tanulas\BME\MSC 1. félév\onlab1\fluid\fluid\bin\Debug\SharpDX.Direct2D1.xml
