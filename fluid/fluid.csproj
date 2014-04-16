@@ -114,6 +114,7 @@
     <Compile Include="D3DrawModelsSources\TextureShader.cs" />
     <Compile Include="D3DrawModelsSources\Triangle.cs" />
     <Compile Include="D3DrawModelsSources\Volume.cs" />
+    <Compile Include="D3DrawModelsSources\VolumeModelBox.cs" />
     <Compile Include="D3DrawModelsSources\VolumeShader.cs" />
     <Compile Include="D3DrawModelsSources\VolumeShader2.cs" />
     <Compile Include="Form1.cs">

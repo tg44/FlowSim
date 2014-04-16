@@ -20,6 +20,8 @@ namespace fluid.D3DrawModelsSources
 
         Vector3 magicTeapot = new Vector3(256, 256, 178);
 
+        VolumeModelBox VolumeModelBox;
+
         //private float[,,] Data;
         //private Texture3D VolumeTexture;
         public bool Initialize(DX11 dx11)
@@ -27,6 +29,10 @@ namespace fluid.D3DrawModelsSources
             DX11 = dx11;
             VolumeBox = new Model();
             if (!VolumeBox.Initialize(DX11.Device, "Cube.txt", "seafloor.dds"))
+                Console.Out.WriteLine("Error on cube load!");
+
+            VolumeModelBox = new VolumeModelBox();
+            if (!VolumeModelBox.Initialize(DX11.Device))
                 Console.Out.WriteLine("Error on cube load!");
 
             VolumeShader = new VolumeShader();
@@ -59,6 +65,11 @@ namespace fluid.D3DrawModelsSources
             return true;
         }
 
+        public bool Render2(Matrix worldMatrix, Matrix viewMatrix, Matrix projectionMatrix)
+        {
+
+            return true;
+        }
         private Texture3D ReadVolumeFromFile()
         {
 
@@ -130,6 +141,41 @@ namespace fluid.D3DrawModelsSources
             renderToTextureRTV.Dispose();
             return renderToTexture;
         }
+        private Texture2D RenderToTexture2(Matrix worldViewProj, string renderMethod, VolumeModelBox vmb)
+        {
+            Texture2D renderToTexture = new Texture2D(DX11.Device, new Texture2DDescription
+            {
+                ArraySize = 1,
+                BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
+                CpuAccessFlags = CpuAccessFlags.None,
+                Format = Format.R8G8B8A8_UNorm,
+                Width = DX11.Width,
+                Height = DX11.Height,
+                MipLevels = 1,
+                OptionFlags = ResourceOptionFlags.None,
+                SampleDescription = new SampleDescription(1, 0),
+                Usage = ResourceUsage.Default
+            });
 
+            // 2) Create a RenderTargetView (and an optional ShaderResourceView):
+            var renderToTextureRTV = new RenderTargetView(DX11.Device, renderToTexture);
+            //var renderToTextureSRV = new ShaderResourceView(DX11.Device, renderToTexture);
+
+
+
+            // 3) Bind the render target to the output in your rendering code:
+            DX11.DeviceContext.OutputMerger.SetTargets(renderToTextureRTV);
+
+            // 4) Don't forget to setup the viewport for this particular render target
+            DX11.DeviceContext.Rasterizer.SetViewport(0, 0, DX11.Width, DX11.Height, 0, 1);
+
+            VolumeModelBox.Render(DX11.DeviceContext);
+            VolumeShader.Render(DX11.DeviceContext, VolumeModelBox.IndexCount, worldViewProj, renderMethod);
+
+            DX11.DeviceContext.OutputMerger.SetTargets(DX11.DepthStencilView, DX11.RenderTargetView);
+            DX11.DeviceContext.Rasterizer.SetViewport(0, 0, DX11.Width, DX11.Height, 0, 1);
+            renderToTextureRTV.Dispose();
+            return renderToTexture;
+        }
     }
 }

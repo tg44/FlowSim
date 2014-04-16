@@ -19,6 +19,7 @@ namespace fluid.D3DrawModelsSources
         public static readonly string RENDER_BACK = "RenderPositionBack";
         public static readonly string RENDER_FRONT = "RenderPositionFront";
         public static readonly string RENDER_VOLUME = "RayCastSimple";
+        public static readonly string RENDER_DIRECTION = "RayCastDirection";
 
         [StructLayout(LayoutKind.Sequential)]
         internal struct Vertex
@@ -109,8 +110,8 @@ namespace fluid.D3DrawModelsSources
 
 
                 eff.GetVariableByName("WorldViewProj").AsMatrix().SetMatrix(worldViewProj);
-                eff.GetVariableByName("StepSize").AsVector().Set(Vector3.One / 20);
-                eff.GetVariableByName("Iterations").AsScalar().Set(20);
+                eff.GetVariableByName("StepSize").AsVector().Set(Vector3.One / 50);
+                eff.GetVariableByName("Iterations").AsScalar().Set(50);
 
                 //eff.GetVariableByName("ScaleFactor").AsVector().Set(Vector4.One);
 

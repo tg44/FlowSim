@@ -14,6 +14,7 @@ Texture2D Front;
 Texture2D Back;
 Texture3D Volume;
 
+
 SamplerState FrontS
 {
 	Filter = MIN_MAG_MIP_LINEAR;
@@ -57,15 +58,18 @@ struct VertexShaderOutput
 VertexShaderOutput VolumeVertexShader(VertexShaderInput input)
 {
     VertexShaderOutput output= (VertexShaderOutput)0;
+
+	output.texC = input.Position;
+
 	input.Position.w = 1.0f;
 		
-	output.Position = mul(input.Position, WorldViewProj);
+	output.Position = mul(input.Position /* * ScaleFactor*/, WorldViewProj);
 	//output.Position = input.Position;
 	//output.Position.w = 1.0f;
 	//output.texC = float4(0.0f, 0.0f, 0.0f, 0.0f);
 	//output.color.rgba = float4(1.0f,0.5f,1.0f,1.0f);
 	//output.pos = float4(0.0f, 0.0f, 0.0f, 0.0f);
-	output.texC = input.Position;
+	
 	output.pos = output.Position;
 
     return output;
@@ -124,7 +128,7 @@ float4 VolumePixelShader(VertexShaderOutput input) : SV_TARGET
     float value = 0;
 	
 	float3 Step = dir * StepSize;
-    [unroll(20)]
+    [unroll(50)]
     for(int i = 0; i < Iterations; i++)
     {
 		pos.w = 0;
@@ -150,6 +154,10 @@ float4 VolumePixelShader(VertexShaderOutput input) : SV_TARGET
 		
 		//break if the position is greater than <1, 1, 1>
 		if(pos.x > 1.0f || pos.y > 1.0f || pos.z > 1.0f)
+			break;
+
+		//break if the position is greater than <1, 1, 1> or smaller then <0,0,0>
+		if (pos.x < 0.0f || pos.y < 0.0f || pos.z < 0.0f)
 			break;
     }
     
@@ -215,7 +223,7 @@ technique11 RayCastSimple
     {		
 		SetVertexShader(CompileShader(vs_4_0, VolumeVertexShader()));
 		SetPixelShader(CompileShader(ps_4_0, VolumePixelShader()));
-        //VertexShader = compile vs_3_0 PositionVS();
+		//VertexShader = compile vs_3_0 PositionVS();
         //PixelShader = compile ps_3_0 RayCastSimplePS();
     }
 }
