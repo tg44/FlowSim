@@ -20,6 +20,7 @@ namespace fluid.D3DrawModelsSources
         public static readonly string RENDER_FRONT = "RenderPositionFront";
         public static readonly string RENDER_VOLUME = "RayCastSimple";
         public static readonly string RENDER_DIRECTION = "RayCastDirection";
+        public static readonly string RENDER_TEST = "RayCastTest";
 
         [StructLayout(LayoutKind.Sequential)]
         internal struct Vertex
@@ -37,12 +38,22 @@ namespace fluid.D3DrawModelsSources
             public Matrix view;
             public Matrix projection;
         }
-        InputLayout Layout { get; set; }
+        InputLayout frontLayout;
+        InputLayout backLayout;
+        InputLayout volumeLayout;
+
+        InputLayout Layout;
+
+
+
         Buffer ConstantMatrixBuffer { get; set; }
         private string ShadersFilePath = @"..\..\Shaders\";
 
+
         Effect eff;
         EffectTechnique efftech;
+
+
         //EffectShaderResourceVariable texture;
 
         public bool Initialize(SharpDX.Direct3D11.Device device, IntPtr windowHandler)
@@ -54,7 +65,7 @@ namespace fluid.D3DrawModelsSources
         public void Shuddown()
         {
             // Shutdown the vertex and pixel shaders as well as the related objects.
-            ShuddownShader();
+            ShutdownShader();
         }
 
         public bool Render(DeviceContext deviceContext, int indexCount, Matrix worldViewProj, Vector3 v3Size, String renderTech, ShaderResourceView fronttex, ShaderResourceView backtex, ShaderResourceView volumetex)
@@ -69,6 +80,10 @@ namespace fluid.D3DrawModelsSources
             // Now render the prepared buffers with the shader.
             RenderShader(deviceContext, indexCount);
 
+            return true;
+        }
+        public bool Render2(DeviceContext deviceContext, int indexCount, Matrix worldViewProj, Vector3 v3Size, String renderTech, ShaderResourceView fronttex, ShaderResourceView backtex, ShaderResourceView volumetex)
+        {
             return true;
         }
 
@@ -110,8 +125,8 @@ namespace fluid.D3DrawModelsSources
 
 
                 eff.GetVariableByName("WorldViewProj").AsMatrix().SetMatrix(worldViewProj);
-                eff.GetVariableByName("StepSize").AsVector().Set(Vector3.One / 50);
-                eff.GetVariableByName("Iterations").AsScalar().Set(50);
+                eff.GetVariableByName("StepSize").AsVector().Set(Vector3.One / v3Size);
+                eff.GetVariableByName("Iterations").AsScalar().Set(Iteration);
 
                 //eff.GetVariableByName("ScaleFactor").AsVector().Set(Vector4.One);
 
@@ -143,8 +158,20 @@ namespace fluid.D3DrawModelsSources
                 return false;
             }
         }
-
-        private void ShuddownShader()
+        public bool setVolumeTexture(ShaderResourceView volumetex)
+        {
+            try
+            {
+                eff.GetVariableByName("Volume").AsShaderResource().SetResource(volumetex);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.Out.WriteLine(ex.Message);
+                return false;
+            }
+        }
+        private void ShutdownShader()
         {
             // Release the matrix constant buffer.
             if (ConstantMatrixBuffer != null)
@@ -159,6 +186,22 @@ namespace fluid.D3DrawModelsSources
                 Layout.Dispose();
                 Layout = null;
             }
+            if (frontLayout != null)
+            {
+                frontLayout.Dispose();
+                frontLayout = null;
+            }
+            if (backLayout != null)
+            {
+                backLayout.Dispose();
+                backLayout = null;
+            }
+            if (volumeLayout != null)
+            {
+                volumeLayout.Dispose();
+                volumeLayout = null;
+            }
+
             /*
             // Release the pixel shader.
             if (PixelShader != null)
@@ -198,8 +241,25 @@ namespace fluid.D3DrawModelsSources
         }
         private bool InitializeTechnique(Device device, String effTech)
         {
+            /*
+            if (effTech == VolumeShader.RENDER_FRONT && frontLayout != null)
+            {
+                Layout = frontLayout;
+                return true;
+            }
+            if (effTech == VolumeShader.RENDER_BACK && backLayout != null)
+            {
+                Layout = backLayout;
+                return true;
+            }
+            if (effTech == VolumeShader.RENDER_VOLUME && volumeLayout != null)
+            {
+                Layout = volumeLayout;
+                return true;
+            }*/
             try
             {
+                //Layout = null;
                 efftech = eff.GetTechniqueByName(effTech);
 
                 var inputElements = new InputElement[]
@@ -226,6 +286,20 @@ namespace fluid.D3DrawModelsSources
 					}
 				};
                 Layout = new InputLayout(device, efftech.GetPassByIndex(0).Description.Signature, inputElements);
+                /*
+                if (effTech == VolumeShader.RENDER_FRONT)
+                {
+                    frontLayout = Layout;
+                }
+                if (effTech == VolumeShader.RENDER_BACK)
+                {
+                    backLayout = Layout;
+                }
+                if (effTech == VolumeShader.RENDER_VOLUME)
+                {
+                    volumeLayout = Layout;
+                }
+                */
                 return true;
             }
             catch (Exception ex)
@@ -239,6 +313,10 @@ namespace fluid.D3DrawModelsSources
         public bool Render(DeviceContext deviceContext, int p1, Matrix worldViewProj, string p2)
         {
             return Render(deviceContext, p1, worldViewProj, Vector3.One, p2, null, null, null);
+        }
+        public bool Render2(DeviceContext deviceContext, int p1, Matrix worldViewProj, string p2)
+        {
+            return true;
         }
     }
 }

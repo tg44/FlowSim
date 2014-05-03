@@ -28,6 +28,9 @@ namespace fluid.D3DrawModelsSources
         public Matrix WorldMatrix { get; private set; }
         public Matrix OrthoMatrix { get; private set; }
 
+        public BlendState AlphaEnableBlendingState { get; private set; }
+        public BlendState AlphaDisableBlendingState { get; private set; }
+
         public int Height { get; private set; }
         public int Width { get; private set; }
 
@@ -231,6 +234,23 @@ namespace fluid.D3DrawModelsSources
                 // Create an orthographic projection matrix for 2D rendering.
                 OrthoMatrix = Matrix.OrthoLH(Width, Height, ScreenNear, ScreenDepth);
 
+                var blendStateDesc = new BlendStateDescription();
+                blendStateDesc.RenderTarget[0].IsBlendEnabled = true;
+                blendStateDesc.RenderTarget[0].SourceBlend = BlendOption.One;
+                blendStateDesc.RenderTarget[0].DestinationBlend = BlendOption.InverseSourceAlpha;
+                blendStateDesc.RenderTarget[0].BlendOperation = BlendOperation.Add;
+                blendStateDesc.RenderTarget[0].SourceAlphaBlend = BlendOption.One;
+                blendStateDesc.RenderTarget[0].DestinationAlphaBlend = BlendOption.Zero;
+                blendStateDesc.RenderTarget[0].AlphaBlendOperation = BlendOperation.Add;
+                blendStateDesc.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
+                // Create the blend state using the description.
+                AlphaEnableBlendingState = new BlendState(device, blendStateDesc);
+
+                // Modify the description to create an disabled blend state description.
+                blendStateDesc.RenderTarget[0].IsBlendEnabled = false;
+                // Create the blend state using the description.
+                AlphaDisableBlendingState = new BlendState(device, blendStateDesc);
+
                 return true;
             }
             catch (Exception ex)
@@ -252,6 +272,18 @@ namespace fluid.D3DrawModelsSources
             {
                 RasterState.Dispose();
                 RasterState = null;
+            }
+
+            if (AlphaEnableBlendingState != null)
+            {
+                AlphaEnableBlendingState.Dispose();
+                AlphaEnableBlendingState = null;
+            }
+
+            if (AlphaDisableBlendingState != null)
+            {
+                AlphaDisableBlendingState.Dispose();
+                AlphaDisableBlendingState = null;
             }
 
             if (DepthStencilView != null)
@@ -280,6 +312,8 @@ namespace fluid.D3DrawModelsSources
 
             if (Device != null)
             {
+                var deviceDebug = new DeviceDebug(Device);
+                deviceDebug.ReportLiveDeviceObjects(ReportingLevel.Detail);
                 Device.Dispose();
                 Device = null;
             }
@@ -289,6 +323,7 @@ namespace fluid.D3DrawModelsSources
                 SwapChain.Dispose();
                 SwapChain = null;
             }
+
         }
 
         public void BeginScene(float red, float green, float blue, float alpha)
@@ -317,6 +352,24 @@ namespace fluid.D3DrawModelsSources
                 // Present as fast as possible.
                 SwapChain.Present(0, PresentFlags.None);
             }
+        }
+
+        public void TurnOnAlphaBlending()
+        {
+            // Setup the blend factor.
+            var blendFactor = new Color4(0, 0, 0, 0);
+
+            // Turn on the alpha blending.
+            DeviceContext.OutputMerger.SetBlendState(AlphaEnableBlendingState, blendFactor, -1);
+        }
+
+        public void TurnOffAlphaBlending()
+        {
+            // Setup the blend factor.
+            var blendFactor = new Color4(0, 0, 0, 0);
+
+            // Turn on the alpha blending.
+            DeviceContext.OutputMerger.SetBlendState(AlphaDisableBlendingState, blendFactor, -1);
         }
 
     }

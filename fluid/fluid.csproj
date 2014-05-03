@@ -110,6 +110,7 @@
     <Compile Include="D3DrawModelsSources\FPS.cs" />
     <Compile Include="D3DrawModelsSources\Light.cs" />
     <Compile Include="D3DrawModelsSources\LightShader.cs" />
+    <Compile Include="D3DrawModelsSources\Noise.cs" />
     <Compile Include="D3DrawModelsSources\Texture.cs" />
     <Compile Include="D3DrawModelsSources\TextureShader.cs" />
     <Compile Include="D3DrawModelsSources\Triangle.cs" />

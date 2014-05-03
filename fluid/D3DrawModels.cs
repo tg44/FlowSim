@@ -111,8 +111,8 @@ namespace fluid
             var projectionMatrix = DX11.ProjectionMatrix;
 
             // Rotate the world matrix by the rotation value so that the triangle will spin.
-            Matrix.RotationY(rotation, out worldMatrix);
-            worldMatrix = Matrix.Multiply(worldMatrix, Matrix.Translation(0, 1, 0));
+            //Matrix.RotationY(rotation, out worldMatrix);
+            // worldMatrix = Matrix.Multiply(worldMatrix, Matrix.Translation(0, 1, 0));
 
             /*Triangle.Render(DX11.DeviceContext);
             /*if (!VolumeShader.Render(DX11.DeviceContext, Triangle.IndexCount, worldMatrix, viewMatrix, projectionMatrix))
@@ -136,7 +136,7 @@ namespace fluid
 
             worldMatrix = Matrix.Multiply(worldMatrix, Matrix.Translation(-6, 0, -6));
             */
-
+            //worldMatrix = Matrix.Multiply(worldMatrix, Matrix.Translation(-0.5f, 0, -0.5f));
             Volume.Render(worldMatrix, viewMatrix, projectionMatrix);
 
             DX11.EndScene();
@@ -144,7 +144,11 @@ namespace fluid
         }
 
 
-        void D3Drawer.Dispose() { }
+        void D3Drawer.Dispose()
+        {
+            if (Floor != null) Floor.Shutdown();
+            if (Volume != null) Volume.Shutdown();
+        }
 
         void D3Drawer.addVars(RenderTargetView renderView, SwapChain swapChain, DeviceContext deviceContext, SharpDX.Direct3D11.Device device, int Width, int Height, IntPtr Handler)
         { }

@@ -105,7 +105,7 @@ float4 DirectionPS(VertexShaderOutput input) : SV_TARGET
 		return float4(back, .9f);
 	}
     
-    return float4(back - front, .9f);
+    return float4(back - front, .6f);
 }
 
 float4 VolumePixelShader(VertexShaderOutput input) : SV_TARGET
@@ -116,25 +116,39 @@ float4 VolumePixelShader(VertexShaderOutput input) : SV_TARGET
 	texC.x =  0.5f*texC.x + 0.5f; 
 	texC.y = -0.5f*texC.y + 0.5f;  
 	
-    float3 front = Front.Sample(FrontS, texC).xyz;
-    float3 back = Back.Sample(BackS, texC).xyz;
-    
-    float3 dir = normalize(back - front);
-    float4 pos = float4(front, 0);
-    
-    float4 dst = float4(0, 0, 0, 0);
-    float4 src = 0;
-    
-    float value = 0;
-	
+	float3 front = Front.Sample(FrontS, texC).xyz;
+		float3 back = Back.Sample(BackS, texC).xyz;
+
+		float3 dir = normalize(back - front);
+		float4 pos = float4(front, 0);
+
+		float4 dst = float4(0, 0, 0, 0);
+		float4 src = 0;
+
+		float2 value = float2(0, 0);
 	float3 Step = dir * StepSize;
-    [unroll(50)]
+    [loop]
     for(int i = 0; i < Iterations; i++)
     {
 		pos.w = 0;
-		value = Volume.Sample(VolumeS, pos).r;
-				
-		src = (float4)value;
+		value = Volume.SampleLevel(VolumeS, pos,0).xy;
+		//src = Volume.SampleLevel(VolumeS, pos, 0).rgba;
+		/*if (value.y < 0.375){
+			src = float4(0, 0.6f*value.y, 1-(value.y-0.375f)*1.6f, value.x);
+		}
+		else if (value.y > 0.625){
+			src = float4((value.y-0.375f)*1.6f, 0.6f*(1-value.y), 0, value.x);
+		}
+		else {
+			src = float4((value.y - 0.375f)*1.6f, 3 * (-1.0f*(value.y - 0.5f)*(value.y - 0.5f))+0.6f, 1 - (value.y - 0.375f)*1.6f, value.x);
+			}*/
+		if (value.y < 0.5f){
+			src = float4(0.0f,value.y*2.0f,1.0f-value.y*2.0f,value.x);
+		}
+		else{
+			src = float4((value.y-0.5f)*2.0f, 2.0f-value.y*2.0f, 0.0f, value.x);
+		}
+		
 		src.a *= .1f; //reduce the alpha to have a more transparent result
 					  //this needs to be adjusted based on the step size
 					  //i.e. the more steps we take, the faster the alpha will grow	
@@ -163,6 +177,65 @@ float4 VolumePixelShader(VertexShaderOutput input) : SV_TARGET
     
     return dst;
 }
+
+float4 VolumeTestPixelShader(VertexShaderOutput input) : SV_TARGET
+{
+	//calculate projective texture coordinates
+	//used to project the front and back position textures onto the cube
+	float2 texC = input.pos.xy /= input.pos.w;
+	texC.x = 0.5f*texC.x + 0.5f;
+	texC.y = -0.5f*texC.y + 0.5f;
+
+	float3 front = Front.Sample(FrontS, texC).xyz;
+		float3 back = Back.Sample(BackS, texC).xyz;
+
+		float3 dir = normalize(back - front);
+		float4 pos = float4(front, 0);
+
+		float4 dst = float4(0, 0, 0, 0);
+		float4 src = 0;
+
+		float2 value = float2(0, 0);
+
+		float3 Step = dir * StepSize;
+		[loop]
+	for (int i = 0; i < Iterations; i++)
+	{
+		pos.w = 0;
+		value = Volume.SampleLevel(VolumeS, pos, 0).rg;
+		src = float4((1.0f - value.g), 0, value.g, value.r);
+		//src = Volume.SampleLevel(VolumeS, pos, 0).rgba;
+
+		//src = (float4)((1.0f - value.y), 0, value.y, value.x);
+		//src.a *= .1f; //reduce the alpha to have a more transparent result
+		//this needs to be adjusted based on the step size
+		//i.e. the more steps we take, the faster the alpha will grow	
+
+		//Front to back blending
+		// dst.rgb = dst.rgb + (1 - dst.a) * src.a * src.rgb
+		// dst.a   = dst.a   + (1 - dst.a) * src.a		
+		//src.rgb *= src.a;
+		//dst = (1.0f - dst.a)*src + dst;
+		dst = src;
+		//break from the loop when alpha gets high enough
+		if (dst.a >= .95f)
+			break;
+
+		//advance the current position
+		pos.xyz += Step;
+
+		//break if the position is greater than <1, 1, 1>
+		if (pos.x > 1.0f || pos.y > 1.0f || pos.z > 1.0f)
+			break;
+
+		//break if the position is greater than <1, 1, 1> or smaller then <0,0,0>
+		if (pos.x < 0.0f || pos.y < 0.0f || pos.z < 0.0f)
+			break;
+	}
+
+	return dst;
+}
+
 /*
 RasterizerState WireframeRS
 {
@@ -215,6 +288,17 @@ technique11 RayCastDirection
         //VertexShader = compile vs_2_0 PositionVS();
         //PixelShader = compile ps_2_0 DirectionPS();
     }
+}
+
+technique11 RayCastTest
+{
+	pass Pass0
+	{
+		SetVertexShader(CompileShader(vs_4_0, VolumeVertexShader()));
+		SetPixelShader(CompileShader(ps_4_0, VolumeTestPixelShader()));
+		//VertexShader = compile vs_2_0 PositionVS();
+		//PixelShader = compile ps_2_0 DirectionPS();
+	}
 }
 
 technique11 RayCastSimple
