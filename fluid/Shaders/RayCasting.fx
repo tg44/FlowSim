@@ -12,7 +12,14 @@ float4 ScaleFactor;
 
 Texture2D Front;
 Texture2D Back;
+
+Texture2D WDepth;
+Texture2D FDepth;
+Texture2D BDepth;
+
 Texture3D Volume;
+
+
 
 
 SamplerState FrontS
@@ -40,7 +47,27 @@ SamplerState VolumeS
     AddressW = Wrap;
 };
 
+SamplerState WDepthS
+{
+	Filter = MIN_MAG_MIP_LINEAR;
 
+	AddressU = Wrap;
+	AddressV = Wrap;
+};
+SamplerState FDepthS
+{
+	Filter = MIN_MAG_MIP_LINEAR;
+
+	AddressU = Wrap;
+	AddressV = Wrap;
+};
+SamplerState BDepthS
+{
+	Filter = MIN_MAG_MIP_LINEAR;
+
+	AddressU = Wrap;
+	AddressV = Wrap;
+};
 struct VertexShaderInput
 {
     float4 Position : POSITION;
@@ -86,6 +113,12 @@ float4 WireFramePS(VertexShaderOutput input) : SV_TARGET
     return float4(1.0f, .5f, 0.0f, .85f);
 }
 
+float4 ConstantColorPS(VertexShaderOutput input) : SV_TARGET
+{
+	return float4(1.0f, .7f, 0.5f, 1.0f);
+}
+
+
 //draws the front or back positions, or the ray direction through the volume
 float4 DirectionPS(VertexShaderOutput input) : SV_TARGET
 {
@@ -93,8 +126,8 @@ float4 DirectionPS(VertexShaderOutput input) : SV_TARGET
 	texC.x =  0.5f*texC.x + 0.5f; 
 	texC.y = -0.5f*texC.y + 0.5f;
 	
-    float3 front = Front.Sample(FrontS, texC).rgb;
-    float3 back = Back.Sample(BackS, texC).rgb;
+	float3 front = Front.Sample(FrontS, texC).rgb;
+		float3 back = Back.Sample(BackS, texC).rgb;
 	
 	if(Side == 0)
 	{
@@ -119,16 +152,49 @@ float4 VolumePixelShader(VertexShaderOutput input) : SV_TARGET
 	float3 front = Front.Sample(FrontS, texC).xyz;
 		float3 back = Back.Sample(BackS, texC).xyz;
 
-		float3 dir = normalize(back - front);
+		float wdepth = WDepth.Sample(WDepthS, texC).r;
+	float bdepth = BDepth.Sample(BDepthS, texC).r;
+	float fdepth = FDepth.Sample(FDepthS, texC).r;
+
+	float3 dir = normalize(back - front);
 		float4 pos = float4(front, 0);
 
 		float4 dst = float4(0, 0, 0, 0);
 		float4 src = 0;
 
 		float2 value = float2(0, 0);
-	float3 Step = dir * StepSize;
+		float3 Step = dir * StepSize;
+
+		/////////////////
+		//felveszek egy intet az iterations helyett
+		int iter = Iterations;
+		//ha van melyseg az elso es hatso lap kozt
+		if (bdepth>wdepth && fdepth<wdepth){
+			////kinullazom az intet
+			iter = 0;
+			////kezdek egy forciklust amiben a steppel novelem a post
+			[loop]
+			for (int i = 0; i < Iterations; i++)
+			{
+				//////novelem az intet
+				//////kilepek ha az egyik koordinata>1 vagy <0
+				//////max iterations lepesszamban
+				pos.xyz += Step;
+				iter++;
+				if (pos.x > 1.0f || pos.y > 1.0f || pos.z > 1.0f)
+					break;
+				if (pos.x < 0.0f || pos.y < 0.0f || pos.z < 0.0f)
+					break;
+			}
+			iter = (wdepth - fdepth)*iter / (bdepth - fdepth);
+			////az uj int ertek jo lesz az elolap-hatlap lepesszamra
+			////nekem az elolap-koztes elem kell, aranyositom az uj intet ez alapjan
+		}
+		pos = float4(front, 0);
+	//az also loop az uj intig megy csak!
+	////////////////
     [loop]
-    for(int i = 0; i < Iterations; i++)
+    for(int i = 0; i < iter; i++)
     {
 		pos.w = 0;
 		value = Volume.SampleLevel(VolumeS, pos,0).xy;
@@ -174,7 +240,8 @@ float4 VolumePixelShader(VertexShaderOutput input) : SV_TARGET
 		if (pos.x < 0.0f || pos.y < 0.0f || pos.z < 0.0f)
 			break;
     }
-    
+	
+
     return dst;
 }
 
@@ -274,6 +341,18 @@ technique11 RenderPositionFront
 		SetVertexShader(CompileShader(vs_4_0, VolumeVertexShader()));
 		SetPixelShader(CompileShader(ps_4_0, PositionPS()));
 		SetRasterizerState(FrontRS);
+		//VertexShader = compile vs_2_0 PositionVS();
+		//PixelShader = compile ps_2_0 PositionPS();
+	}
+}
+
+technique11 RenderConstansColor
+{
+	pass Pass0
+	{
+		SetVertexShader(CompileShader(vs_4_0, VolumeVertexShader()));
+		SetPixelShader(CompileShader(ps_4_0, ConstantColorPS()));
+		//SetRasterizerState(FrontRS);
 		//VertexShader = compile vs_2_0 PositionVS();
 		//PixelShader = compile ps_2_0 PositionPS();
 	}

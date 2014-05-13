@@ -21,6 +21,7 @@ namespace fluid.D3DrawModelsSources
         public static readonly string RENDER_VOLUME = "RayCastSimple";
         public static readonly string RENDER_DIRECTION = "RayCastDirection";
         public static readonly string RENDER_TEST = "RayCastTest";
+        public static readonly string RENDER_CONSTANT_COLOR = "RenderConstansColor";
 
         [StructLayout(LayoutKind.Sequential)]
         internal struct Vertex
@@ -68,10 +69,10 @@ namespace fluid.D3DrawModelsSources
             ShutdownShader();
         }
 
-        public bool Render(DeviceContext deviceContext, int indexCount, Matrix worldViewProj, Vector3 v3Size, String renderTech, ShaderResourceView fronttex, ShaderResourceView backtex, ShaderResourceView volumetex)
+        public bool Render(DeviceContext deviceContext, int indexCount, Matrix worldViewProj, Vector3 v3Size, String renderTech, ShaderResourceView fronttex, ShaderResourceView backtex, ShaderResourceView wdepthtex, ShaderResourceView fdepthtex, ShaderResourceView bdepthtex, ShaderResourceView volumetex)
         {
             // Set the shader parameters that it will use for rendering.
-            if (!SetShaderParameters(deviceContext, worldViewProj, v3Size, fronttex, backtex, volumetex))
+            if (!SetShaderParameters(deviceContext, worldViewProj, v3Size, fronttex, backtex, wdepthtex, fdepthtex, bdepthtex, volumetex))
                 return false;
 
             if (!InitializeTechnique(deviceContext.Device, renderTech))
@@ -79,6 +80,8 @@ namespace fluid.D3DrawModelsSources
 
             // Now render the prepared buffers with the shader.
             RenderShader(deviceContext, indexCount);
+
+            unboundShaderRes(deviceContext);
 
             return true;
         }
@@ -103,7 +106,7 @@ namespace fluid.D3DrawModelsSources
 
         }
 
-        private bool SetShaderParameters(DeviceContext deviceContext, Matrix worldViewProj, Vector3 v3Size, ShaderResourceView fronttex, ShaderResourceView backtex, ShaderResourceView volumetex)
+        private bool SetShaderParameters(DeviceContext deviceContext, Matrix worldViewProj, Vector3 v3Size, ShaderResourceView fronttex, ShaderResourceView backtex, ShaderResourceView wdepthtex, ShaderResourceView fdepthtex, ShaderResourceView bdepthtex, ShaderResourceView volumetex)
         {
             try
             {
@@ -146,6 +149,22 @@ namespace fluid.D3DrawModelsSources
                 if (volumetex != null)
                 {
                     eff.GetVariableByName("Volume").AsShaderResource().SetResource(volumetex);
+                    //deviceContext.PixelShader.SetShaderResource(2, volumetex);
+                }
+
+                if (wdepthtex != null)
+                {
+                    eff.GetVariableByName("WDepth").AsShaderResource().SetResource(wdepthtex);
+                    //deviceContext.PixelShader.SetShaderResource(2, volumetex);
+                }
+                if (fdepthtex != null)
+                {
+                    eff.GetVariableByName("FDepth").AsShaderResource().SetResource(fdepthtex);
+                    //deviceContext.PixelShader.SetShaderResource(2, volumetex);
+                }
+                if (bdepthtex != null)
+                {
+                    eff.GetVariableByName("BDepth").AsShaderResource().SetResource(bdepthtex);
                     //deviceContext.PixelShader.SetShaderResource(2, volumetex);
                 }
                 //eff.GetVariableByName("projectionMatrix").AsMatrix().SetMatrix(projectionMatrix);
@@ -217,7 +236,18 @@ namespace fluid.D3DrawModelsSources
                 VertexShader = null;
             }*/
         }
+        public void unboundShaderRes(DeviceContext deviceContext)
+        {
 
+
+            deviceContext.PixelShader.SetShaderResource(0, null);
+            deviceContext.PixelShader.SetShaderResource(1, null);
+            deviceContext.PixelShader.SetShaderResource(2, null);
+            deviceContext.PixelShader.SetShaderResource(3, null);
+            deviceContext.PixelShader.SetShaderResource(4, null);
+            deviceContext.PixelShader.SetShaderResource(5, null);
+
+        }
         private bool InitializeShader(Device device, IntPtr windowHandler, string vsFileName)
         {
             try
@@ -298,8 +328,8 @@ namespace fluid.D3DrawModelsSources
                 if (effTech == VolumeShader.RENDER_VOLUME)
                 {
                     volumeLayout = Layout;
-                }
-                */
+                }*/
+
                 return true;
             }
             catch (Exception ex)
@@ -312,11 +342,16 @@ namespace fluid.D3DrawModelsSources
 
         public bool Render(DeviceContext deviceContext, int p1, Matrix worldViewProj, string p2)
         {
-            return Render(deviceContext, p1, worldViewProj, Vector3.One, p2, null, null, null);
+            return Render(deviceContext, p1, worldViewProj, Vector3.One, p2, null, null, null, null, null, null);
         }
         public bool Render2(DeviceContext deviceContext, int p1, Matrix worldViewProj, string p2)
         {
             return true;
+        }
+
+        public bool RenderSphere(DeviceContext deviceContext, int p1, Matrix worldViewProj)
+        {
+            return Render(deviceContext, p1, worldViewProj, Vector3.One, VolumeShader.RENDER_CONSTANT_COLOR, null, null, null, null, null, null);
         }
     }
 }

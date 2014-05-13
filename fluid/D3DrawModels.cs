@@ -124,9 +124,16 @@ namespace fluid
             if (!LightShader.Render(DX11.DeviceContext, Box.IndexCount, worldMatrix, viewMatrix, projectionMatrix, Box.Texture.TextureResource, Light.Direction, Light.DiffuseColor))
                 return false;
             */
+
+
+            /*
             Floor.Render(DX11.DeviceContext);
             if (!LightShader.Render(DX11.DeviceContext, Floor.IndexCount, DX11.WorldMatrix, viewMatrix, projectionMatrix, Floor.Texture.TextureResource, Light.Direction, Light.DiffuseColor))
                 return false;
+            */
+
+
+
             /*
             worldMatrix = Matrix.Multiply(worldMatrix, Matrix.Translation(3, 0, 3));
             //render the volume
@@ -136,7 +143,22 @@ namespace fluid
 
             worldMatrix = Matrix.Multiply(worldMatrix, Matrix.Translation(-6, 0, -6));
             */
-            //worldMatrix = Matrix.Multiply(worldMatrix, Matrix.Translation(-0.5f, 0, -0.5f));
+            worldMatrix = Matrix.Multiply(worldMatrix, Matrix.Translation(-0.5f, 0, -0.5f));
+
+            Box.Render(DX11.DeviceContext);
+            Volume.VolumeShader.RenderSphere(DX11.DeviceContext, Box.IndexCount, worldMatrix * Matrix.Scaling(0.2f) * viewMatrix * projectionMatrix);
+
+
+            DX11.TurnOnInObjectRender();
+            /*Floor.Render(DX11.DeviceContext);
+            if (!LightShader.Render(DX11.DeviceContext, Floor.IndexCount, DX11.WorldMatrix * Matrix.RotationZ(1.14f) * Matrix.RotationY(rotation) * Matrix.Scaling(0.5f, 1, 0.4f), viewMatrix, projectionMatrix, Floor.Texture.TextureResource, Light.Direction, Light.DiffuseColor))
+                return false;*/
+            Box.Render(DX11.DeviceContext);
+            Volume.VolumeShader.RenderSphere(DX11.DeviceContext, Box.IndexCount, worldMatrix * Matrix.Scaling(0.2f) * viewMatrix * projectionMatrix);
+
+            DX11.TurnOffInObjectRender();
+
+
             Volume.Render(worldMatrix, viewMatrix, projectionMatrix);
 
             DX11.EndScene();

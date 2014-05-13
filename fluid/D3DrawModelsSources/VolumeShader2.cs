@@ -155,7 +155,7 @@ namespace fluid.D3DrawModelsSources
                 VertexShader = new VertexShader(device, vertexShaderByteCode);
                 // Create the pixel shader from the buffer.
                 PixelShader = new PixelShader(device, pixelShaderByteCode);
-
+                /*
                 // Now setup the layout of the data that goes into the shader.
                 // This setup needs to match the VertexType structure in the Model and in the shader.
                 var inputElements = new InputElement[]
@@ -181,10 +181,10 @@ namespace fluid.D3DrawModelsSources
 						InstanceDataStepRate = 0
 					}
 				};
-
+                
                 // Create the vertex input the layout.
                 Layout = new InputLayout(device, ShaderSignature.GetInputSignature(vertexShaderByteCode), inputElements);
-
+                */
                 // Release the vertex and pixel shader buffers, since they are no longer needed.
                 vertexShaderByteCode.Dispose();
                 pixelShaderByteCode.Dispose();

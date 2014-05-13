@@ -7,6 +7,7 @@ using SharpDX;
 using System.IO;
 using SharpDX.DXGI;
 using Texture3D = SharpDX.Toolkit.Graphics.Texture3D;
+using SharpDX.Direct3D;
 
 namespace fluid.D3DrawModelsSources
 {
@@ -14,7 +15,7 @@ namespace fluid.D3DrawModelsSources
     {
         DX11 DX11;
         Model VolumeBox;
-        VolumeShader VolumeShader;
+        public VolumeShader VolumeShader { get; private set; }
 
         ShaderResourceView fvolume;
 
@@ -24,6 +25,22 @@ namespace fluid.D3DrawModelsSources
         Texture3D volumeTex;
         ShaderResourceView fdvolume;
         Vector3 vDimension = new Vector3(20, 20, 20);
+
+        Texture2D frontText;
+        Texture2D backText;
+        Texture2D frontDepthText;
+        Texture2D backDepthText;
+
+        ShaderResourceView frontSRV;
+        ShaderResourceView backSRV;
+        ShaderResourceView frontDepthSRV;
+        ShaderResourceView backDepthSRV;
+        ShaderResourceView inObjectsDepthSRV;
+
+        RenderTargetView frontRTV;
+        RenderTargetView backRTV;
+        DepthStencilView frontDepthDSV;
+        DepthStencilView backDepthDSV;
 
         int frames = 0;
         int animatetime = 0;
@@ -50,6 +67,51 @@ namespace fluid.D3DrawModelsSources
             fvolume = new ShaderResourceView(DX11.DeviceContext.Device, ReadVolumeFromFile());
             init3DTexture();
             fdvolume = new ShaderResourceView(DX11.DeviceContext.Device, volumeTex);
+            Texture2DDescription desc = new Texture2DDescription
+            {
+                ArraySize = 1,
+                BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
+                CpuAccessFlags = CpuAccessFlags.None,
+                Format = Format.R8G8B8A8_UNorm,
+                Width = DX11.Width,
+                Height = DX11.Height,
+                MipLevels = 1,
+                OptionFlags = ResourceOptionFlags.None,
+                SampleDescription = new SampleDescription(1, 0),
+                Usage = ResourceUsage.Default
+            };
+            frontText = new Texture2D(DX11.Device, desc);
+            backText = new Texture2D(DX11.Device, desc);
+            frontRTV = new RenderTargetView(DX11.Device, frontText);
+            backRTV = new RenderTargetView(DX11.Device, backText);
+            frontSRV = new ShaderResourceView(DX11.Device, frontText);
+            backSRV = new ShaderResourceView(DX11.Device, backText);
+
+            frontDepthText = new Texture2D(DX11.Device, DX11.DepthStencilBufferInObj.Description);
+            backDepthText = new Texture2D(DX11.Device, DX11.DepthStencilBufferInObj.Description);
+
+            frontDepthDSV = new DepthStencilView(DX11.Device, frontDepthText, DX11.DepthStencilViewInObj.Description);
+            backDepthDSV = new DepthStencilView(DX11.Device, backDepthText, DX11.DepthStencilViewInObj.Description);
+
+            ShaderResourceViewDescription dsrvDesc = new ShaderResourceViewDescription()
+            {
+                Format = Format.R32_Float,
+                Dimension = ShaderResourceViewDimension.Texture2D,
+                Texture2D = new ShaderResourceViewDescription.Texture2DResource()
+                {
+                    MipLevels = 1,
+                    MostDetailedMip = 0,
+                }
+            };
+
+
+
+
+            inObjectsDepthSRV = new ShaderResourceView(DX11.DeviceContext.Device, DX11.DepthStencilBufferInObj, dsrvDesc);
+            frontDepthSRV = new ShaderResourceView(DX11.DeviceContext.Device, frontDepthText, dsrvDesc);
+            backDepthSRV = new ShaderResourceView(DX11.DeviceContext.Device, backDepthText, dsrvDesc);
+
+
 
 
             return true;
@@ -60,12 +122,19 @@ namespace fluid.D3DrawModelsSources
             //worldMatrix = worldMatrix * Matrix.Translation(-1.5f, 0, -1.5f);
             Matrix worldViewProj = worldMatrix * viewMatrix * projectionMatrix;
 
-            Texture2D back = RenderToTexture(worldViewProj, VolumeShader.RENDER_BACK);
-            Texture2D front = RenderToTexture(worldViewProj, VolumeShader.RENDER_FRONT);
 
-            ShaderResourceView bview = new ShaderResourceView(DX11.DeviceContext.Device, back);
-            ShaderResourceView fview = new ShaderResourceView(DX11.DeviceContext.Device, front);
 
+            /*Texture2D back =*/
+            RenderToTexture(worldViewProj, VolumeShader.RENDER_BACK);
+            /*Texture2D front =*/
+            RenderToTexture(worldViewProj, VolumeShader.RENDER_FRONT);
+
+            //ShaderResourceView bview = new ShaderResourceView(DX11.DeviceContext.Device, back);
+            //ShaderResourceView fview = new ShaderResourceView(DX11.DeviceContext.Device, front);
+
+
+            DX11.TurnOffInObjectRender();
+            //DX11.DeviceContext.OutputMerger.ResetTargets();
             frames++;
             if (frames > 30)
             {
@@ -76,23 +145,25 @@ namespace fluid.D3DrawModelsSources
 
             DX11.TurnOnAlphaBlending();
             VolumeBox.Render(DX11.DeviceContext);
-            if (!VolumeShader.Render(DX11.DeviceContext, VolumeBox.IndexCount, worldViewProj, vDimension, VolumeShader.RENDER_VOLUME, fview, bview, fdvolume))
-                return false;
+            //if (!VolumeShader.Render(DX11.DeviceContext, VolumeBox.IndexCount, worldViewProj, vDimension, VolumeShader.RENDER_VOLUME, fview, bview, depthview, fdvolume))
+            //    return false;
             //if (!VolumeShader.Render(DX11.DeviceContext, VolumeBox.IndexCount, worldViewProj, magicTeapot, VolumeShader.RENDER_VOLUME, fview, bview, fvolume))
             //    return false;
+            bool k = VolumeShader.Render(DX11.DeviceContext, VolumeBox.IndexCount, worldViewProj, vDimension, VolumeShader.RENDER_VOLUME, frontSRV, backSRV, inObjectsDepthSRV, frontDepthSRV, backDepthSRV, fdvolume);
+            if (!k) Console.Out.WriteLine("asd");
             DX11.TurnOffAlphaBlending();
 
-
+            /*
             bview.Dispose();
             fview.Dispose();
 
-
             back.Dispose();
             front.Dispose();
-
-
+            //VolumeShader.unboundShaderRes();
+            */
             return true;
         }
+
 
 
         private Texture3D ReadVolumeFromFile()
@@ -130,30 +201,31 @@ namespace fluid.D3DrawModelsSources
 
 
 
-        private Texture2D RenderToTexture(Matrix worldViewProj, string renderMethod)
+        private void RenderToTexture(Matrix worldViewProj, string renderMethod)
         {
 
-            Texture2D renderToTexture = new Texture2D(DX11.Device, new Texture2DDescription
-            {
-                ArraySize = 1,
-                BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
-                CpuAccessFlags = CpuAccessFlags.None,
-                Format = Format.R8G8B8A8_UNorm,
-                Width = DX11.Width,
-                Height = DX11.Height,
-                MipLevels = 1,
-                OptionFlags = ResourceOptionFlags.None,
-                SampleDescription = new SampleDescription(1, 0),
-                Usage = ResourceUsage.Default
-            });
 
+            RenderTargetView renderToTextureRTV;
+            DepthStencilView renderToTextureDSV;
             // 2) Create a RenderTargetView (and an optional ShaderResourceView):
-            var renderToTextureRTV = new RenderTargetView(DX11.Device, renderToTexture);
+            if (renderMethod == VolumeShader.RENDER_BACK)
+            {
+                renderToTextureRTV = backRTV;
+                renderToTextureDSV = backDepthDSV;
+            }
+            else
+            {
+                renderToTextureRTV = frontRTV;
+                renderToTextureDSV = frontDepthDSV;
+            }
             //var renderToTextureSRV = new ShaderResourceView(DX11.Device, renderToTexture);
 
+            //clear them
+            DX11.DeviceContext.ClearDepthStencilView(renderToTextureDSV, DepthStencilClearFlags.Depth, 1, 0);
+            DX11.DeviceContext.ClearRenderTargetView(renderToTextureRTV, new Color4(0.0f));
 
             // 3) Bind the render target to the output in your rendering code:
-            DX11.DeviceContext.OutputMerger.SetRenderTargets(renderToTextureRTV);
+            DX11.DeviceContext.OutputMerger.SetRenderTargets(renderToTextureDSV, renderToTextureRTV);
 
             // 4) Don't forget to setup the viewport for this particular render target
             DX11.DeviceContext.Rasterizer.SetViewport(0, 0, DX11.Width, DX11.Height, 0, 1);
@@ -164,8 +236,8 @@ namespace fluid.D3DrawModelsSources
             DX11.DeviceContext.OutputMerger.SetTargets(DX11.DepthStencilView, DX11.RenderTargetView);
             DX11.DeviceContext.Rasterizer.SetViewport(0, 0, DX11.Width, DX11.Height, 0, 1);
 
-            renderToTextureRTV.Dispose();
-            return renderToTexture;
+            //renderToTextureRTV.Dispose();
+            //return renderToTexture;
         }
 
         private void init3DTexture()
@@ -209,7 +281,7 @@ namespace fluid.D3DrawModelsSources
                 {
                     for (int k = 0; k < vDimension.Z; k++)
                     {
-                        scalar[adresser(i, j, k, 0)] = Noise.noise(new Vector4(i / 10.0f, j / 10f, k / 10f, t / 200f));
+                        scalar[adresser(i, j, k, 0)] = Noise.noise(new Vector4(i / 10.0f, j / 10f, k / 10f, t / 200f)) + 0.3f;
                         scalar[adresser(i, j, k, 1)] = Noise.noise4D(new Vector4(i / 10.0f, j / 10.0f, k / 10.0f, (t + 1) / 100.0f));
                     }
                 }

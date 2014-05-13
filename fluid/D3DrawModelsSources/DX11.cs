@@ -20,9 +20,12 @@ namespace fluid.D3DrawModelsSources
         public Device Device { get; private set; }
         public DeviceContext DeviceContext { get; private set; }
         public RenderTargetView RenderTargetView { get; private set; }
-        private Texture2D DepthStencilBuffer { get; set; }
+        public RenderTargetView RenderTargetViewInObj { get; private set; }
+        public Texture2D DepthStencilBuffer { get; set; }
+        public Texture2D DepthStencilBufferInObj { get; set; }
         public DepthStencilState DepthStencilState { get; set; }
         public DepthStencilView DepthStencilView { get; private set; }
+        public DepthStencilView DepthStencilViewInObj { get; private set; }
         private RasterizerState RasterState { get; set; }
         public Matrix ProjectionMatrix { get; private set; }
         public Matrix WorldMatrix { get; private set; }
@@ -129,6 +132,21 @@ namespace fluid.D3DrawModelsSources
 
                 // Create the render target view with the back buffer pointer.
                 RenderTargetView = new RenderTargetView(device, backBuffer);
+                Texture2DDescription rtvdesc = new Texture2DDescription
+                {
+                    ArraySize = 1,
+                    BindFlags = BindFlags.RenderTarget,
+                    CpuAccessFlags = CpuAccessFlags.None,
+                    Format = Format.R8G8B8A8_UNorm,
+                    Width = Width,
+                    Height = Height,
+                    MipLevels = 1,
+                    OptionFlags = ResourceOptionFlags.None,
+                    SampleDescription = new SampleDescription(1, 0),
+                    Usage = ResourceUsage.Default
+                };
+                var rtvtex = new Texture2D(device, rtvdesc);
+                RenderTargetViewInObj = new RenderTargetView(device, rtvtex);
 
                 // Release pointer to the back buffer as we no longer need it.
                 backBuffer.Dispose();
@@ -140,16 +158,17 @@ namespace fluid.D3DrawModelsSources
                     Height = Height,
                     MipLevels = 1,
                     ArraySize = 1,
-                    Format = Format.D24_UNorm_S8_UInt,
+                    Format = Format.R32_Typeless,
                     SampleDescription = new SampleDescription(1, 0),
                     Usage = ResourceUsage.Default,
-                    BindFlags = BindFlags.DepthStencil,
+                    BindFlags = BindFlags.DepthStencil | BindFlags.ShaderResource,
                     CpuAccessFlags = CpuAccessFlags.None,
                     OptionFlags = ResourceOptionFlags.None
                 };
 
                 // Create the texture for the depth buffer using the filled out description.
                 DepthStencilBuffer = new Texture2D(device, depthBufferDesc);
+                DepthStencilBufferInObj = new Texture2D(device, depthBufferDesc);
 
                 // Initialize and set up the description of the stencil state.
                 var depthStencilDesc = new DepthStencilStateDescription()
@@ -187,7 +206,7 @@ namespace fluid.D3DrawModelsSources
                 // Initialize and set up the depth stencil view.
                 var depthStencilViewDesc = new DepthStencilViewDescription()
                 {
-                    Format = Format.D24_UNorm_S8_UInt,
+                    Format = Format.D32_Float,
                     Dimension = DepthStencilViewDimension.Texture2D,
                     Texture2D = new DepthStencilViewDescription.Texture2DResource()
                     {
@@ -197,6 +216,7 @@ namespace fluid.D3DrawModelsSources
 
                 // Create the depth stencil view.
                 DepthStencilView = new DepthStencilView(Device, DepthStencilBuffer, depthStencilViewDesc);
+                DepthStencilViewInObj = new DepthStencilView(Device, DepthStencilBufferInObj, depthStencilViewDesc);
 
                 // Bind the render target view and depth stencil buffer to the output render pipeline.
                 DeviceContext.OutputMerger.SetTargets(DepthStencilView, RenderTargetView);
@@ -292,6 +312,12 @@ namespace fluid.D3DrawModelsSources
                 DepthStencilView = null;
             }
 
+            if (DepthStencilViewInObj != null)
+            {
+                DepthStencilViewInObj.Dispose();
+                DepthStencilViewInObj = null;
+            }
+
             if (DepthStencilState != null)
             {
                 DepthStencilState.Dispose();
@@ -304,12 +330,22 @@ namespace fluid.D3DrawModelsSources
                 DepthStencilBuffer = null;
             }
 
+            if (DepthStencilBufferInObj != null)
+            {
+                DepthStencilBufferInObj.Dispose();
+                DepthStencilBufferInObj = null;
+            }
+
             if (RenderTargetView != null)
             {
                 RenderTargetView.Dispose();
                 RenderTargetView = null;
             }
-
+            if (RenderTargetViewInObj != null)
+            {
+                RenderTargetViewInObj.Dispose();
+                RenderTargetViewInObj = null;
+            }
             if (Device != null)
             {
                 var deviceDebug = new DeviceDebug(Device);
@@ -334,9 +370,10 @@ namespace fluid.D3DrawModelsSources
         {
             // Clear the depth buffer.
             DeviceContext.ClearDepthStencilView(DepthStencilView, DepthStencilClearFlags.Depth, 1, 0);
-
+            DeviceContext.ClearDepthStencilView(DepthStencilViewInObj, DepthStencilClearFlags.Depth, 1, 0);
             // Clear the back buffer.
             DeviceContext.ClearRenderTargetView(RenderTargetView, color);
+            DeviceContext.ClearRenderTargetView(RenderTargetViewInObj, new Color4(0.0f));
         }
 
         public void EndScene()
@@ -370,6 +407,14 @@ namespace fluid.D3DrawModelsSources
 
             // Turn on the alpha blending.
             DeviceContext.OutputMerger.SetBlendState(AlphaDisableBlendingState, blendFactor, -1);
+        }
+        public void TurnOnInObjectRender()
+        {
+            DeviceContext.OutputMerger.SetTargets(DepthStencilViewInObj, RenderTargetViewInObj);
+        }
+        public void TurnOffInObjectRender()
+        {
+            DeviceContext.OutputMerger.SetTargets(DepthStencilView, RenderTargetView);
         }
 
     }
