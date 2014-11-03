@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using fluid.D3DrawModelsSources;
+using System.Drawing;
 
 namespace fluid
 {
@@ -15,10 +16,15 @@ namespace fluid
         SwapChain swapChain,
         DeviceContext deviceContext,
         SharpDX.Direct3D11.Device device, int Width, int Height, IntPtr Handler);
-        bool init(DX11 DX11);
+        bool init(DX11 DX11, SizeF Heatmap, SizeF Sensitivitymap);
         void Dispose();
         FPS FPS { get; }
         CPU CPU { get; }
         Camera Camera { get; set; }
+
+        SizeF Heatmap { get; set; }
+
+        SizeF Sensitivitymap { get; set; }
+
     }
 }

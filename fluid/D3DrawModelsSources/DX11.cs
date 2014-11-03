@@ -170,80 +170,8 @@ namespace fluid.D3DrawModelsSources
                 DepthStencilBuffer = new Texture2D(device, depthBufferDesc);
                 DepthStencilBufferInObj = new Texture2D(device, depthBufferDesc);
 
-                // Initialize and set up the description of the stencil state.
-                var depthStencilDesc = new DepthStencilStateDescription()
-                {
-                    IsDepthEnabled = true,
-                    DepthWriteMask = DepthWriteMask.All,
-                    DepthComparison = Comparison.Less,
-                    IsStencilEnabled = true,
-                    StencilReadMask = 0xFF,
-                    StencilWriteMask = 0xFF,
-                    // Stencil operation if pixel front-facing.
-                    FrontFace = new DepthStencilOperationDescription()
-                    {
-                        FailOperation = StencilOperation.Keep,
-                        DepthFailOperation = StencilOperation.Increment,
-                        PassOperation = StencilOperation.Keep,
-                        Comparison = Comparison.Always
-                    },
-                    // Stencil operation if pixel is back-facing.
-                    BackFace = new DepthStencilOperationDescription()
-                    {
-                        FailOperation = StencilOperation.Keep,
-                        DepthFailOperation = StencilOperation.Decrement,
-                        PassOperation = StencilOperation.Keep,
-                        Comparison = Comparison.Always
-                    }
-                };
+                ResetDeviceContext();
 
-                // Create the depth stencil state.
-                DepthStencilState = new DepthStencilState(Device, depthStencilDesc);
-
-                // Set the depth stencil state.
-                DeviceContext.OutputMerger.SetDepthStencilState(DepthStencilState, 1);
-
-                // Initialize and set up the depth stencil view.
-                var depthStencilViewDesc = new DepthStencilViewDescription()
-                {
-                    Format = Format.D32_Float,
-                    Dimension = DepthStencilViewDimension.Texture2D,
-                    Texture2D = new DepthStencilViewDescription.Texture2DResource()
-                    {
-                        MipSlice = 0
-                    }
-                };
-
-                // Create the depth stencil view.
-                DepthStencilView = new DepthStencilView(Device, DepthStencilBuffer, depthStencilViewDesc);
-                DepthStencilViewInObj = new DepthStencilView(Device, DepthStencilBufferInObj, depthStencilViewDesc);
-
-                // Bind the render target view and depth stencil buffer to the output render pipeline.
-                DeviceContext.OutputMerger.SetTargets(DepthStencilView, RenderTargetView);
-
-                // Setup the raster description which will determine how and what polygon will be drawn.
-                var rasterDesc = new RasterizerStateDescription()
-                {
-                    IsAntialiasedLineEnabled = false,
-                    CullMode = CullMode.Back,
-                    DepthBias = 0,
-                    DepthBiasClamp = .0f,
-                    IsDepthClipEnabled = true,
-                    FillMode = FillMode.Solid,
-                    IsFrontCounterClockwise = false,
-                    IsMultisampleEnabled = false,
-                    IsScissorEnabled = false,
-                    SlopeScaledDepthBias = .0f
-                };
-
-                // Create the rasterizer state from the description we just filled out.
-                RasterState = new RasterizerState(Device, rasterDesc);
-
-                // Now set the rasterizer state.
-                DeviceContext.Rasterizer.State = RasterState;
-
-                // Setup and create the viewport for rendering.
-                DeviceContext.Rasterizer.SetViewport(0, 0, Width, Height, 0, 1);
 
                 // Setup and create the projection matrix.
                 ProjectionMatrix = Matrix.PerspectiveFovLH((float)(Math.PI / 4), ((float)Width / Height), ScreenNear, ScreenDepth);
@@ -415,6 +343,84 @@ namespace fluid.D3DrawModelsSources
         public void TurnOffInObjectRender()
         {
             DeviceContext.OutputMerger.SetTargets(DepthStencilView, RenderTargetView);
+        }
+
+        public void ResetDeviceContext()
+        {
+            // Initialize and set up the description of the stencil state.
+            var depthStencilDesc = new DepthStencilStateDescription()
+            {
+                IsDepthEnabled = true,
+                DepthWriteMask = DepthWriteMask.All,
+                DepthComparison = Comparison.Less,
+                IsStencilEnabled = true,
+                StencilReadMask = 0xFF,
+                StencilWriteMask = 0xFF,
+                // Stencil operation if pixel front-facing.
+                FrontFace = new DepthStencilOperationDescription()
+                {
+                    FailOperation = StencilOperation.Keep,
+                    DepthFailOperation = StencilOperation.Increment,
+                    PassOperation = StencilOperation.Keep,
+                    Comparison = Comparison.Always
+                },
+                // Stencil operation if pixel is back-facing.
+                BackFace = new DepthStencilOperationDescription()
+                {
+                    FailOperation = StencilOperation.Keep,
+                    DepthFailOperation = StencilOperation.Decrement,
+                    PassOperation = StencilOperation.Keep,
+                    Comparison = Comparison.Always
+                }
+            };
+
+            // Create the depth stencil state.
+            DepthStencilState = new DepthStencilState(Device, depthStencilDesc);
+
+            // Set the depth stencil state.
+            DeviceContext.OutputMerger.SetDepthStencilState(DepthStencilState, 1);
+
+            // Initialize and set up the depth stencil view.
+            var depthStencilViewDesc = new DepthStencilViewDescription()
+            {
+                Format = Format.D32_Float,
+                Dimension = DepthStencilViewDimension.Texture2D,
+                Texture2D = new DepthStencilViewDescription.Texture2DResource()
+                {
+                    MipSlice = 0
+                }
+            };
+
+            // Create the depth stencil view.
+            DepthStencilView = new DepthStencilView(Device, DepthStencilBuffer, depthStencilViewDesc);
+            DepthStencilViewInObj = new DepthStencilView(Device, DepthStencilBufferInObj, depthStencilViewDesc);
+
+            // Bind the render target view and depth stencil buffer to the output render pipeline.
+            DeviceContext.OutputMerger.SetTargets(DepthStencilView, RenderTargetView);
+
+            // Setup the raster description which will determine how and what polygon will be drawn.
+            var rasterDesc = new RasterizerStateDescription()
+            {
+                IsAntialiasedLineEnabled = false,
+                CullMode = CullMode.Back,
+                DepthBias = 0,
+                DepthBiasClamp = .0f,
+                IsDepthClipEnabled = true,
+                FillMode = FillMode.Solid,
+                IsFrontCounterClockwise = false,
+                IsMultisampleEnabled = false,
+                IsScissorEnabled = false,
+                SlopeScaledDepthBias = .0f
+            };
+
+            // Create the rasterizer state from the description we just filled out.
+            RasterState = new RasterizerState(Device, rasterDesc);
+
+            // Now set the rasterizer state.
+            DeviceContext.Rasterizer.State = RasterState;
+
+            // Setup and create the viewport for rendering.
+            DeviceContext.Rasterizer.SetViewport(0, 0, Width, Height, 0, 1);
         }
 
     }

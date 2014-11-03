@@ -17,9 +17,11 @@ Texture2D WDepth;
 Texture2D FDepth;
 Texture2D BDepth;
 
-Texture3D Volume;
+Texture3D VolumePressure;
+Texture3D VolumeTemp;
 
-
+float2 Heatmap;
+float2 Sensitivity;
 
 
 SamplerState FrontS
@@ -197,7 +199,8 @@ float4 VolumePixelShader(VertexShaderOutput input) : SV_TARGET
     for(int i = 0; i < iter; i++)
     {
 		pos.w = 0;
-		value = Volume.SampleLevel(VolumeS, pos,0).xy;
+		value.x = VolumePressure.SampleLevel(VolumeS, pos,0).x;
+		value.y = VolumeTemp.SampleLevel(VolumeS, pos, 0).x;
 		//src = Volume.SampleLevel(VolumeS, pos, 0).rgba;
 		/*if (value.y < 0.375){
 			src = float4(0, 0.6f*value.y, 1-(value.y-0.375f)*1.6f, value.x);
@@ -208,12 +211,23 @@ float4 VolumePixelShader(VertexShaderOutput input) : SV_TARGET
 		else {
 			src = float4((value.y - 0.375f)*1.6f, 3 * (-1.0f*(value.y - 0.5f)*(value.y - 0.5f))+0.6f, 1 - (value.y - 0.375f)*1.6f, value.x);
 			}*/
-		if (value.y < 0.5f){
-			src = float4(0.0f,value.y*2.0f,1.0f-value.y*2.0f,value.x);
+
+		//before scaling
+		//if (value.y < 0.5f){
+		//	src = float4(0.0f, value.y*2.0f, 1.0f - value.y*2.0f, value.x);
+		//}
+		//else{
+		//	src = float4((value.y - 0.5f)*2.0f, 2.0f - value.y*2.0f, 0.0f, value.x);
+		//}
+
+		//after scaling
+		if (value.y < (Heatmap.x-Heatmap.y)/2.0f){
+			src = float4(0.0f, (value.y - Heatmap.y) / (Heatmap.x - Heatmap.y)*2.0f, 1.0f - (value.y - Heatmap.y) / (Heatmap.x - Heatmap.y)*2.0f, (value.x - Sensitivity.y) / (Sensitivity.x - Sensitivity.y));
 		}
 		else{
-			src = float4((value.y-0.5f)*2.0f, 2.0f-value.y*2.0f, 0.0f, value.x);
+			src = float4(((value.y - Heatmap.y) / (Heatmap.x - Heatmap.y) - 0.5f)*2.0f, 2.0f - (value.y - Heatmap.y) / (Heatmap.x - Heatmap.y)*2.0f, 0.0f, (value.x - Sensitivity.y) / (Sensitivity.x - Sensitivity.y));
 		}
+
 		
 		src.a *= .1f; //reduce the alpha to have a more transparent result
 					  //this needs to be adjusted based on the step size
@@ -269,7 +283,8 @@ float4 VolumeTestPixelShader(VertexShaderOutput input) : SV_TARGET
 	for (int i = 0; i < Iterations; i++)
 	{
 		pos.w = 0;
-		value = Volume.SampleLevel(VolumeS, pos, 0).rg;
+		value.r = VolumePressure.SampleLevel(VolumeS, pos, 0).r;
+		value.g = VolumeTemp.SampleLevel(VolumeS, pos, 0).r;
 		src = float4((1.0f - value.g), 0, value.g, value.r);
 		//src = Volume.SampleLevel(VolumeS, pos, 0).rgba;
 

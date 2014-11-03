@@ -15,17 +15,24 @@ namespace fluid
         public Form1()
         {
             InitializeComponent();
+            /*selectionRangeSlider1.Max = 100;
+            selectionRangeSlider1.Min = -100;
+            selectionRangeSlider1.SelectedMin = 0;
+            selectionRangeSlider1.SelectedMax = 100;*/
         }
 
         private void sartRender(object sender, MouseEventArgs e)
         {
             //d3DPanel1.drawer=new D3DrawBG();
+            uint z = 10;
+            int f = (int)z;
+
             d3DPanel1.drawer = new D3DrawModels();
             d3DPanel1.Initialize();
             refreshLabels();
             labelTimer.Enabled = true;
             d3DPanel1.startRendering();
-            
+
         }
         private void refreshLabels()
         {
@@ -74,6 +81,16 @@ namespace fluid
         private void timer1_Tick(object sender, EventArgs e)
         {
             refreshLabels();
+        }
+
+        private void HeatmapChanged(object sender, EventArgs e)
+        {
+            d3DPanel1.Heatmap = new SizeF(HeatMap.SelectedMin, HeatMap.SelectedMax);
+        }
+
+        private void SensitivityChanged(object sender, EventArgs e)
+        {
+            d3DPanel1.Sensitivitymap = new SizeF(Sensitivity.SelectedMin, Sensitivity.SelectedMax);
         }
     }
 }

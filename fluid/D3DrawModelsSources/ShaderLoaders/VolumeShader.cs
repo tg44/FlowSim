@@ -9,6 +9,7 @@ using Buffer = SharpDX.Direct3D11.Buffer;
 using Device = SharpDX.Direct3D11.Device;
 using SharpDX.D3DCompiler;
 using SharpDX.DXGI;
+using System.Drawing;
 //using SharpDX.Toolkit.Graphics;
 //using Effect = SharpDX.Toolkit.Graphics.Effect;
 
@@ -69,10 +70,10 @@ namespace fluid.D3DrawModelsSources
             ShutdownShader();
         }
 
-        public bool Render(DeviceContext deviceContext, int indexCount, Matrix worldViewProj, Vector3 v3Size, String renderTech, ShaderResourceView fronttex, ShaderResourceView backtex, ShaderResourceView wdepthtex, ShaderResourceView fdepthtex, ShaderResourceView bdepthtex, ShaderResourceView volumetex)
+        public bool Render(DeviceContext deviceContext, int indexCount, Matrix worldViewProj, Vector3 v3Size, String renderTech, ShaderResourceView fronttex, ShaderResourceView backtex, ShaderResourceView wdepthtex, ShaderResourceView fdepthtex, ShaderResourceView bdepthtex, ShaderResourceView volumePressure, ShaderResourceView volumeTemp, SizeF heat, SizeF sensi)
         {
             // Set the shader parameters that it will use for rendering.
-            if (!SetShaderParameters(deviceContext, worldViewProj, v3Size, fronttex, backtex, wdepthtex, fdepthtex, bdepthtex, volumetex))
+            if (!SetShaderParameters(deviceContext, worldViewProj, v3Size, fronttex, backtex, wdepthtex, fdepthtex, bdepthtex, volumePressure, volumeTemp, heat, sensi))
                 return false;
 
             if (!InitializeTechnique(deviceContext.Device, renderTech))
@@ -106,7 +107,7 @@ namespace fluid.D3DrawModelsSources
 
         }
 
-        private bool SetShaderParameters(DeviceContext deviceContext, Matrix worldViewProj, Vector3 v3Size, ShaderResourceView fronttex, ShaderResourceView backtex, ShaderResourceView wdepthtex, ShaderResourceView fdepthtex, ShaderResourceView bdepthtex, ShaderResourceView volumetex)
+        private bool SetShaderParameters(DeviceContext deviceContext, Matrix worldViewProj, Vector3 v3Size, ShaderResourceView fronttex, ShaderResourceView backtex, ShaderResourceView wdepthtex, ShaderResourceView fdepthtex, ShaderResourceView bdepthtex, ShaderResourceView volumePressure, ShaderResourceView volumeTemp, SizeF heat, SizeF sensi)
         {
             try
             {
@@ -131,6 +132,9 @@ namespace fluid.D3DrawModelsSources
                 eff.GetVariableByName("StepSize").AsVector().Set(Vector3.One / v3Size);
                 eff.GetVariableByName("Iterations").AsScalar().Set(Iteration);
 
+                eff.GetVariableByName("Heatmap").AsVector().Set(new Vector2(heat.Height, heat.Width));
+                eff.GetVariableByName("Sensitivity").AsVector().Set(new Vector2(sensi.Height, sensi.Width));
+
                 //eff.GetVariableByName("ScaleFactor").AsVector().Set(Vector4.One);
 
 
@@ -146,9 +150,15 @@ namespace fluid.D3DrawModelsSources
                     //deviceContext.PixelShader.SetShaderResource(1, backtex);
                 }
 
-                if (volumetex != null)
+                if (volumePressure != null)
                 {
-                    eff.GetVariableByName("Volume").AsShaderResource().SetResource(volumetex);
+                    eff.GetVariableByName("VolumePressure").AsShaderResource().SetResource(volumePressure);
+                    //deviceContext.PixelShader.SetShaderResource(2, volumetex);
+                }
+
+                if (volumeTemp != null)
+                {
+                    eff.GetVariableByName("VolumeTemp").AsShaderResource().SetResource(volumeTemp);
                     //deviceContext.PixelShader.SetShaderResource(2, volumetex);
                 }
 
@@ -177,7 +187,7 @@ namespace fluid.D3DrawModelsSources
                 return false;
             }
         }
-        public bool setVolumeTexture(ShaderResourceView volumetex)
+        /*public bool setVolumeTexture(ShaderResourceView volumetex)
         {
             try
             {
@@ -189,7 +199,7 @@ namespace fluid.D3DrawModelsSources
                 Console.Out.WriteLine(ex.Message);
                 return false;
             }
-        }
+        }*/
         private void ShutdownShader()
         {
             // Release the matrix constant buffer.
@@ -239,13 +249,20 @@ namespace fluid.D3DrawModelsSources
         public void unboundShaderRes(DeviceContext deviceContext)
         {
 
-
+            //eff.GetVariableByIndex(0).AsShaderResource().SetResource(null);
             deviceContext.PixelShader.SetShaderResource(0, null);
+            // eff.GetVariableByIndex(1).AsShaderResource().SetResource(null);
             deviceContext.PixelShader.SetShaderResource(1, null);
+            // eff.GetVariableByIndex(2).AsShaderResource().SetResource(null);
             deviceContext.PixelShader.SetShaderResource(2, null);
+            //eff.GetVariableByIndex(3).AsShaderResource().SetResource(null);
             deviceContext.PixelShader.SetShaderResource(3, null);
+            //eff.GetVariableByIndex(4).AsShaderResource().SetResource(null);
             deviceContext.PixelShader.SetShaderResource(4, null);
+            // eff.GetVariableByIndex(5).AsShaderResource().SetResource(null);
             deviceContext.PixelShader.SetShaderResource(5, null);
+            // eff.GetVariableByIndex(6).AsShaderResource().SetResource(null);
+            deviceContext.PixelShader.SetShaderResource(6, null);
 
         }
         private bool InitializeShader(Device device, IntPtr windowHandler, string vsFileName)
@@ -342,7 +359,11 @@ namespace fluid.D3DrawModelsSources
 
         public bool Render(DeviceContext deviceContext, int p1, Matrix worldViewProj, string p2)
         {
-            return Render(deviceContext, p1, worldViewProj, Vector3.One, p2, null, null, null, null, null, null);
+            return Render(deviceContext, p1, worldViewProj, Vector3.One, p2, null, null, null, null, null, null, null);
+        }
+        public bool Render(DeviceContext deviceContext, int indexCount, Matrix worldViewProj, Vector3 v3Size, String renderTech, ShaderResourceView fronttex, ShaderResourceView backtex, ShaderResourceView wdepthtex, ShaderResourceView fdepthtex, ShaderResourceView bdepthtex, ShaderResourceView volumePressure, ShaderResourceView volumeTemp)
+        {
+            return Render(deviceContext, indexCount, worldViewProj, v3Size, renderTech, fronttex, backtex, wdepthtex, fdepthtex, bdepthtex, volumePressure, volumeTemp, new SizeF(0, 1), new SizeF(0, 1));
         }
         public bool Render2(DeviceContext deviceContext, int p1, Matrix worldViewProj, string p2)
         {
@@ -351,7 +372,12 @@ namespace fluid.D3DrawModelsSources
 
         public bool RenderSphere(DeviceContext deviceContext, int p1, Matrix worldViewProj)
         {
-            return Render(deviceContext, p1, worldViewProj, Vector3.One, VolumeShader.RENDER_CONSTANT_COLOR, null, null, null, null, null, null);
+            return Render(deviceContext, p1, worldViewProj, Vector3.One, VolumeShader.RENDER_CONSTANT_COLOR, null, null, null, null, null, null, null);
+        }
+
+        public bool Render(DeviceContext deviceContext, int p1, Matrix worldViewProj, Vector3 vDimension, String p2, Volume volume)
+        {
+            return Render(deviceContext, p1, worldViewProj, vDimension, p2, volume.frontSRV, volume.backSRV, volume.inObjectsDepthSRV, volume.frontDepthSRV, volume.backDepthSRV, volume.fdvolumePressure, volume.fdvolumeTemp, volume.Heatmap, volume.Sensitivitymap);
         }
     }
 }

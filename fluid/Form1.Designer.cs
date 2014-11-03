@@ -41,6 +41,8 @@
             this.cbuttonZoomOut = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
             this.labelTimer = new System.Windows.Forms.Timer(this.components);
+            this.Sensitivity = new fluid.SelectionRangeSliderWrapper();
+            this.HeatMap = new fluid.SelectionRangeSliderWrapper();
             this.d3DPanel1 = new fluid.D3DPanel();
             this.SuspendLayout();
             // 
@@ -159,11 +161,39 @@
             this.labelTimer.Interval = 1000;
             this.labelTimer.Tick += new System.EventHandler(this.timer1_Tick);
             // 
+            // Sensitivity
+            // 
+            this.Sensitivity.Location = new System.Drawing.Point(454, 361);
+            this.Sensitivity.Max = 1F;
+            this.Sensitivity.Min = -1F;
+            this.Sensitivity.Name = "Sensitivity";
+            this.Sensitivity.SelectedMax = 1F;
+            this.Sensitivity.SelectedMin = 0F;
+            this.Sensitivity.Size = new System.Drawing.Size(373, 87);
+            this.Sensitivity.TabIndex = 13;
+            this.Sensitivity.Title = "Transparency sensitivity";
+            this.Sensitivity.SelectionChanged += new System.EventHandler(this.SensitivityChanged);
+            // 
+            // HeatMap
+            // 
+            this.HeatMap.Location = new System.Drawing.Point(454, 268);
+            this.HeatMap.Max = 1F;
+            this.HeatMap.Min = -1F;
+            this.HeatMap.Name = "HeatMap";
+            this.HeatMap.SelectedMax = 1F;
+            this.HeatMap.SelectedMin = 0F;
+            this.HeatMap.Size = new System.Drawing.Size(373, 87);
+            this.HeatMap.TabIndex = 12;
+            this.HeatMap.Title = "HeatMap";
+            this.HeatMap.SelectionChanged += new System.EventHandler(this.HeatmapChanged);
+            // 
             // d3DPanel1
             // 
             this.d3DPanel1.drawer = null;
+            this.d3DPanel1.Heatmap = new System.Drawing.SizeF(0F, 1F);
             this.d3DPanel1.Location = new System.Drawing.Point(45, 62);
             this.d3DPanel1.Name = "d3DPanel1";
+            this.d3DPanel1.Sensitivitymap = new System.Drawing.SizeF(0F, 1F);
             this.d3DPanel1.Size = new System.Drawing.Size(400, 400);
             this.d3DPanel1.TabIndex = 0;
             this.d3DPanel1.Text = "d3DPanel1";
@@ -173,6 +203,8 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(884, 561);
+            this.Controls.Add(this.Sensitivity);
+            this.Controls.Add(this.HeatMap);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.cbuttonZoomOut);
             this.Controls.Add(this.cbuttonZoomIn);
@@ -207,5 +239,7 @@
         private System.Windows.Forms.Button cbuttonZoomOut;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Timer labelTimer;
+        private SelectionRangeSliderWrapper HeatMap;
+        private SelectionRangeSliderWrapper Sensitivity;
     }
 }
