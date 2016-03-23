@@ -1,0 +1,88 @@
+﻿A jelenlegi interface a view és a motor közt eléggé gyengusz, nehezen paraméterezhető... :(
+A Shaders mappában túl sok shit van...
+a hmdp szép
+a formsot lehetne bontani
+a d3draw-ot kellene bontani
+a d2 relatíve jó
+d3 d2 naming refaktor valószínű kellene h cleanebb legyen
+a shadert betöltő cuccokat egyforma fgvsorrendre kellene hozni, ahol lehet szét kellene vágni
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Global:
+- Refaktor (3 óra)
+	- átnézni h ami newsva van-e az disposolásra kerül-e minden osztályban (3 óra)
+	- a HMDP libet megírni vmi gyorsabb és jobb módon (longterm)
+
+
+2D (12 óra)
+- shader a szimulációhoz
+  - nézetek és forgatások helyrerakása (4 óra)
+  - szimuláció scalelése debugolása (1 nap)
+- shader a nem szimulációhoz (done erre a félévre)
+  - kell a ui-t is fejleszteni hozzá
+	- elhelyezett elemek listában
+	  - törölni (1 óra vagy skip)
+	  - 2D-ben sorrendezni (1 óra vagy skip)
+- model rendszer
+- model builder (16 óra vagy skip)
+  - segít az xml + 4.png előállításában
+  - grafikus tool (nagyon messzi)
+
+- model tipusok (done)
+  - venti (iránya, és fújó teljesítménye van) rgba-n rg xy irány, b nagyság, a típus
+  - venti ami fűt (pl procihűtő, iránya, fújó és hőteljesítménye van)
+  - hőt leadó elem (pl passzív hűtés, hőteljesítménye van) 
+  - hőt elvonó elem? (pl vízhűtés)
+  - szilárd test (pl a házban terelő, csak kiterjedése van, meg felületi normálja!!!!!!! rg a felületi normál (xy), az a a van/nincs)
+  - légszűrő (lassítja a rajta áthaladó levegőt)
+
+- hardver kötés? (skip)
+  - alkatrészek hardverhez kötése
+
+- sebesség vektor measure (16 óra vagy skip)
+  - egy kis kör, amit szimuláció közben tologathatok, és mutatja h a kör alatti cucc milyen irányú és nagyságú mozgást végez (esetleg h mekkora ott a nyomás és a hő)
+
+- sorrend
+  - szimulációs motor + nézet
+  - mintavételezőke
+
+
+3D
+ - hogy töltesz be modellt? (1 nap)
+	- modelleket keresni
+	- libet keresni rá
+	- kipróbálni
+ - ez a modell hogy kerül a helyére? (1 nap)
+	- scalelések mozgatások
+ - hogy írod le a hő+gátlás, a mozgatás, és a szilárd attribútumait a testnek
+	- vagy megadod valahogy mindet, vagy valahogy leírod a hő és mozgást az xml-be és shaderből szeletelünk nincs ötletem érdemes lenne megkérdezni
+ - hogy írod le a scalelését és az orientációját a testnek (2 óra)
+	- standardizálni kell
+ - szimuláció debug
+
+
+
+
+Általános
+ - Ismertesse az áramlást leíró fizikai törvényeket!
+	- Erre kell még idő, irodalmat kell olvasni, ki kell gyűjteni h mit olvastam, nem ártana megérteni :D (1 nap)
+ - Mutasson be a fizikai modell numerikus megoldására alkalmas megközelítéseket! Válasszon ezek közül olyat, ami a GPU párhuzamos architektúrájára és a megoldandó feladatra leginkább alkalmas!
+	- Lsd előző pont. (2 nap)
+ - Tervezze és valósítsa meg az áramlásszimulációt!
+	- Eddig sztem mind a 2 motorral el kéne jutni, a 2D-ssel és a 3D-ssel is.
+ - Ismertesse a térfogati adatok megjelenítésére alkalmas vizualizációs eljárásokat a tudományos vizualizáció szakirodalma alapján! Válasszon ezek közül alkalmas módszert az eredmények megjelenítésére!
+	- Erről szintén lehetne írni már most. (2 nap)
+ - Tervezze és valósítsa meg az adatok vizualizációját!
+ - Értékelje a megvalósított módszereket elsősorban a számítási teljesítmény szempontjából!

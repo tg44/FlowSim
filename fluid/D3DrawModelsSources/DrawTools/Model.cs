@@ -1,4 +1,5 @@
-﻿using SharpDX;
+﻿using fluid.D3DrawModelsSources.ShaderLoaders;
+using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.Direct3D11;
 using SharpDX.DXGI;
@@ -9,7 +10,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Buffer = SharpDX.Direct3D11.Buffer;
 
-namespace fluid.D3DrawModelsSources
+namespace fluid.D3DrawModelsSources.DrawTools
 {
     class Model
     {
@@ -27,12 +28,12 @@ namespace fluid.D3DrawModelsSources
         int VertexCount { get; set; }
         public int IndexCount { get; private set; }
         public ModelFormat[] ModelObject { get; private set; }
-        public Texture Texture { get; private set; }
+        public Texture Texture { get; protected set; }
 
         public bool Initialize(SharpDX.Direct3D11.Device device, string modelFormatFilename, string textureFileName)
         {
             // Load in the model data.
-            if (!LoadModel(modelFormatFilename))
+            if (!LoadModel(modelFormatFilename, false))
                 return false;
             if (!InitializeBuffers(device))
                 return false;
@@ -41,7 +42,7 @@ namespace fluid.D3DrawModelsSources
             return true;
         }
 
-        private bool LoadModel(string modelFormatFilename)
+        protected bool LoadModel(string modelFormatFilename, bool invertV)
         {
             modelFormatFilename = ModelFilePath + modelFormatFilename;
             List<string> lines = null;
@@ -74,6 +75,10 @@ namespace fluid.D3DrawModelsSources
                         ny = float.Parse(modelArray[6], NumberStyles.Any, ci),
                         nz = float.Parse(modelArray[7], NumberStyles.Any, ci)
                     };
+                    if (invertV)
+                    {
+                        ModelObject[i - 4].tu = 1 - ModelObject[i - 4].tu;
+                    }
                 }
 
                 return true;
@@ -97,7 +102,7 @@ namespace fluid.D3DrawModelsSources
 
             return true;
         }
-        public void Shutdown()
+        public virtual void Dispose()
         {
             // Release the model texture.
             ReleaseTexture();
@@ -113,7 +118,7 @@ namespace fluid.D3DrawModelsSources
             // Release the texture object.
             if (Texture != null)
             {
-                Texture.Shutdown();
+                Texture.Dispose();
                 Texture = null;
             }
         }
@@ -126,7 +131,7 @@ namespace fluid.D3DrawModelsSources
             // Put the vertex and index buffers on the graphics pipeline to prepare for drawings.
             RenderBuffers(deviceContext);
         }
-        private bool InitializeBuffers(SharpDX.Direct3D11.Device device)
+        protected bool InitializeBuffers(SharpDX.Direct3D11.Device device)
         {
             try
             {

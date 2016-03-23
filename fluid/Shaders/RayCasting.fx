@@ -29,7 +29,7 @@ SamplerState FrontS
 	Filter = MIN_MAG_MIP_LINEAR;
 
 	AddressU = Wrap;				
-    AddressV = Wrap;				
+	AddressV = Wrap;				
 };
 
 SamplerState BackS
@@ -37,16 +37,16 @@ SamplerState BackS
 	Filter = MIN_MAG_MIP_LINEAR;
 	
 	AddressU = Wrap;				
-    AddressV = Wrap;				
+	AddressV = Wrap;				
 };
 
 SamplerState VolumeS
 {
-    Filter = MIN_MAG_MIP_LINEAR;
+	Filter = MIN_MAG_MIP_LINEAR;
 
 	AddressU = Wrap;				
-    AddressV = Wrap;				
-    AddressW = Wrap;
+	AddressV = Wrap;				
+	AddressW = Wrap;
 };
 
 SamplerState WDepthS
@@ -72,21 +72,21 @@ SamplerState BDepthS
 };
 struct VertexShaderInput
 {
-    float4 Position : POSITION;
-    float2 texC		: TEXCOORD;
+	float4 Position : POSITION;
+	float2 texC		: TEXCOORD;
 };
 
 struct VertexShaderOutput
 {
-    float4 Position		: SV_POSITION;
-    float3 texC			: TEXCOORD0;
-    float4 pos			: TEXCOORD1;
+	float4 Position		: SV_POSITION;
+	float3 texC			: TEXCOORD0;
+	float4 pos			: TEXCOORD1;
 	//float4 color		: COLOR;
 };
 
 VertexShaderOutput VolumeVertexShader(VertexShaderInput input)
 {
-    VertexShaderOutput output= (VertexShaderOutput)0;
+	VertexShaderOutput output= (VertexShaderOutput)0;
 
 	output.texC = input.Position;
 
@@ -101,18 +101,18 @@ VertexShaderOutput VolumeVertexShader(VertexShaderInput input)
 	
 	output.pos = output.Position;
 
-    return output;
+	return output;
 }
 
 float4 PositionPS(VertexShaderOutput input) : SV_TARGET
 {
 	//return input.color;
-    return float4(input.texC, 1.0f);
+	return float4(input.texC, 1.0f);
 }
 
 float4 WireFramePS(VertexShaderOutput input) : SV_TARGET
 {
-    return float4(1.0f, .5f, 0.0f, .85f);
+	return float4(1.0f, .5f, 0.0f, .85f);
 }
 
 float4 ConstantColorPS(VertexShaderOutput input) : SV_TARGET
@@ -139,8 +139,8 @@ float4 DirectionPS(VertexShaderOutput input) : SV_TARGET
 	{
 		return float4(back, .9f);
 	}
-    
-    return float4(back - front, .6f);
+	
+	return float4(back - front, .6f);
 }
 
 float4 VolumePixelShader(VertexShaderOutput input) : SV_TARGET
@@ -195,9 +195,9 @@ float4 VolumePixelShader(VertexShaderOutput input) : SV_TARGET
 		pos = float4(front, 0);
 	//az also loop az uj intig megy csak!
 	////////////////
-    [loop]
-    for(int i = 0; i < iter; i++)
-    {
+	[loop]
+	for(int i = 0; i < iter; i++)
+	{
 		pos.w = 0;
 		value.x = VolumePressure.SampleLevel(VolumeS, pos,0).x;
 		value.y = VolumeTemp.SampleLevel(VolumeS, pos, 0).x;
@@ -253,10 +253,10 @@ float4 VolumePixelShader(VertexShaderOutput input) : SV_TARGET
 		//break if the position is greater than <1, 1, 1> or smaller then <0,0,0>
 		if (pos.x < 0.0f || pos.y < 0.0f || pos.z < 0.0f)
 			break;
-    }
+	}
 	
 
-    return dst;
+	return dst;
 }
 
 float4 VolumeTestPixelShader(VertexShaderOutput input) : SV_TARGET
@@ -340,14 +340,14 @@ RasterizerState FrontRS
 
 technique11 RenderPositionBack
 {
-    pass Pass0
-    {		
+	pass Pass0
+	{		
 		SetVertexShader(CompileShader(vs_4_0, VolumeVertexShader()));
 		SetPixelShader(CompileShader(ps_4_0, PositionPS()));
 		SetRasterizerState(BackRS);
-        //VertexShader = compile vs_2_0 PositionVS();
-        //PixelShader = compile ps_2_0 PositionPS();
-    }
+		//VertexShader = compile vs_2_0 PositionVS();
+		//PixelShader = compile ps_2_0 PositionPS();
+	}
 }
 technique11 RenderPositionFront
 {
@@ -375,13 +375,13 @@ technique11 RenderConstansColor
 
 technique11 RayCastDirection
 {
-    pass Pass0
-    {		
+	pass Pass0
+	{		
 		SetVertexShader(CompileShader(vs_4_0, VolumeVertexShader()));
 		SetPixelShader(CompileShader(ps_4_0, DirectionPS()));
-        //VertexShader = compile vs_2_0 PositionVS();
-        //PixelShader = compile ps_2_0 DirectionPS();
-    }
+		//VertexShader = compile vs_2_0 PositionVS();
+		//PixelShader = compile ps_2_0 DirectionPS();
+	}
 }
 
 technique11 RayCastTest
@@ -397,22 +397,22 @@ technique11 RayCastTest
 
 technique11 RayCastSimple
 {
-    pass Pass0
-    {		
+	pass Pass0
+	{		
 		SetVertexShader(CompileShader(vs_4_0, VolumeVertexShader()));
 		SetPixelShader(CompileShader(ps_4_0, VolumePixelShader()));
 		//VertexShader = compile vs_3_0 PositionVS();
-        //PixelShader = compile ps_3_0 RayCastSimplePS();
-    }
+		//PixelShader = compile ps_3_0 RayCastSimplePS();
+	}
 }
 
 technique11 WireFrame
 {
-    pass Pass0
-    {		
+	pass Pass0
+	{		
 		SetVertexShader(CompileShader(vs_4_0, VolumeVertexShader()));
 		SetPixelShader(CompileShader(ps_4_0, WireFramePS()));
-        //VertexShader = compile vs_2_0 PositionVS();
-        //PixelShader = compile ps_2_0 WireFramePS();
-    }
+		//VertexShader = compile vs_2_0 PositionVS();
+		//PixelShader = compile ps_2_0 WireFramePS();
+	}
 }

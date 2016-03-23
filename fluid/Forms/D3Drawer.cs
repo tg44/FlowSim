@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using fluid.D3DrawModelsSources;
 using System.Drawing;
+using fluid.Forms;
+using fluid.D3DrawModelsSources.DrawTools;
 
 namespace fluid
 {
@@ -25,6 +27,12 @@ namespace fluid
         SizeF Heatmap { get; set; }
 
         SizeF Sensitivitymap { get; set; }
+
+        bool PhisicsStep { get; set; }
+        bool PhisicsStarted { get; set; }
+        int PhisicsStepSize { get; set; }
+
+        MovableModel addFileLoader(HMDP.HMDPLoader loader);
 
     }
 }

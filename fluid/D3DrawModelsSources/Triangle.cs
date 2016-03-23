@@ -8,6 +8,7 @@ using SharpDX.Direct3D11;
 using SharpDX;
 using SharpDX.Direct3D;
 using SharpDX.DXGI;
+using fluid.D3DrawModelsSources.ShaderLoaders;
 
 namespace fluid.D3DrawModelsSources
 {
@@ -28,7 +29,7 @@ namespace fluid.D3DrawModelsSources
             // Initialize the vertex and index buffer that hold the geometry for the triangle.
             return InitializeBuffers(device);
         }
-        public void Shutdown()
+        public void Dispose()
         {
             // Release the vertex and index buffers.
             ShutdownBuffers();
@@ -50,30 +51,30 @@ namespace fluid.D3DrawModelsSources
 
                 // Create the vertex array and load it with data.
                 var vertices = new[]
-					{
+                    {
                         // Bottom right.
 						new ColorShader.Vertex()
-						{
+                        {
                             position = new Vector3(2, -2, 0),
-							color = new Vector4(1, 1, 0, 1)
-						},
+                            color = new Vector4(1, 1, 0, 1)
+                        },
 						// Top middle.
 						new ColorShader.Vertex()
-						{
-							position = new Vector3(0, 2, 0),
-							color = new Vector4(0, 1, 0, 1)
-						},
+                        {
+                            position = new Vector3(0, 2, 0),
+                            color = new Vector4(0, 1, 0, 1)
+                        },
 						// Bottom left.
 						new ColorShader.Vertex()
-						{
-							position = new Vector3(-2, -2, 0),
-							color = new Vector4(0, 1, 1, 1)
-						}
-					};
+                        {
+                            position = new Vector3(-2, -2, 0),
+                            color = new Vector4(0, 1, 1, 1)
+                        }
+                    };
 
-                var indices = new[] 
-				{
-					0, // Bottom right.
+                var indices = new[]
+                {
+                    0, // Bottom right.
 					1, // Top middle.
 					2  // Bottom left.
 				};

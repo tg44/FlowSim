@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using SharpDX;
 
-namespace fluid.D3DrawModelsSources
+namespace fluid.D3DrawModelsSources.DrawTools
 {
-    class Camera
+    public class Camera
     {
         private float PositionX { get; set; }
         private float PositionY { get; set; }
@@ -19,6 +19,9 @@ namespace fluid.D3DrawModelsSources
             PositionX = x;
             PositionY = y;
             PositionZ = z;
+            Position.X = x;
+            Position.Y = y;
+            Position.Z = z;
         }
 
         public void ModPositionInSphere(float x, float y, float z)
@@ -26,13 +29,19 @@ namespace fluid.D3DrawModelsSources
             PositionX += x;
             PositionY += y;
             PositionZ += z;
+            Position.X = PositionX;
+            Position.Y = PositionY;
+            Position.Z = PositionZ;
 
         }
+        public Vector3 lookAt = new Vector3(0, 0, 0);
+        public Vector3 Position = new Vector3(0, 0, 0);
+
         public Vector3 GetPosition()
         {
-            return new Vector3(PositionX, PositionY, PositionZ);
+            return Position;
         }
-       
+
         public void Render()
         {
             /*
@@ -60,11 +69,23 @@ namespace fluid.D3DrawModelsSources
             // Finally create the view matrix from the three updated vectors.
             ViewMatrix = Matrix.LookAtLH(position, lookAt, up);
              */
-            var position = new Vector3(PositionZ * (float)Math.Sin(PositionY) * (float)Math.Cos(PositionX),
-                                        PositionZ * (float)Math.Cos(PositionY) + PositionZ,
-                                        PositionZ * (float)Math.Sin(PositionY) * (float)Math.Sin(PositionX));
-            var lookAt = new Vector3(0, 0, 0);
+            var position = new Vector3(Position.Z * (float)Math.Sin(Position.Y) * (float)Math.Cos(Position.X),
+                                        Position.Z * (float)Math.Cos(Position.Y) + Position.Z,
+                                        Position.Z * (float)Math.Sin(Position.Y) * (float)Math.Sin(Position.X));
             var up = new Vector3(0, 1, 0);
+            ViewMatrix = Matrix.LookAtLH(position, lookAt, up);
+
+        }
+
+        public void Render2D()
+        {
+
+            /*var position = new Vector3(Position.Z * (float)Math.Sin(Position.Y) * (float)Math.Cos(Position.X),
+                                        Position.Z * (float)Math.Cos(Position.Y) + Position.Z,
+                                        Position.Z * (float)Math.Sin(Position.Y) * (float)Math.Sin(Position.X));
+            */
+            var position = Position;
+            var up = new Vector3(0, 0, 1);
             ViewMatrix = Matrix.LookAtLH(position, lookAt, up);
 
         }

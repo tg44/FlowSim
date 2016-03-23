@@ -10,7 +10,7 @@ using Device = SharpDX.Direct3D11.Device;
 using SharpDX.D3DCompiler;
 using SharpDX.DXGI;
 
-namespace fluid.D3DrawModelsSources
+namespace fluid.D3DrawModelsSources.ShaderLoaders
 {
     class TextureShader
     {
@@ -29,6 +29,7 @@ namespace fluid.D3DrawModelsSources
             public Matrix world;
             public Matrix view;
             public Matrix projection;
+            public Matrix colorRotation;
         }
 
         VertexShader VertexShader { get; set; }
@@ -46,16 +47,21 @@ namespace fluid.D3DrawModelsSources
             return InitializeShader(device, windowHandler, "texture.vs", "texture.ps");
         }
 
-        public void Shuddown()
+        public virtual void Dispose()
         {
             // Shutdown the vertex and pixel shaders as well as the related objects.
             ShuddownShader();
         }
 
-        public bool Render(DeviceContext deviceContext, int indexCount, Matrix worldMatrix, Matrix viewMatrix, Matrix projectionMatrix, ShaderResourceView texture)
+        public virtual bool Render(DeviceContext deviceContext, int indexCount, Matrix worldMatrix, Matrix viewMatrix, Matrix projectionMatrix, ShaderResourceView texture)
+        {
+            return Render(deviceContext, indexCount, worldMatrix, viewMatrix, projectionMatrix, texture, Matrix.Identity);
+        }
+
+        public virtual bool Render(DeviceContext deviceContext, int indexCount, Matrix worldMatrix, Matrix viewMatrix, Matrix projectionMatrix, ShaderResourceView texture, Matrix colorRotationMatrix)
         {
             // Set the shader parameters that it will use for rendering.
-            if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture))
+            if (!SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, texture, colorRotationMatrix))
                 return false;
 
             // Now render the prepared buffers with the shader.
@@ -79,7 +85,7 @@ namespace fluid.D3DrawModelsSources
             deviceContext.DrawIndexed(indexCount, 0, 0);
         }
 
-        private bool SetShaderParameters(DeviceContext deviceContext, Matrix worldMatrix, Matrix viewMatrix, Matrix projectionMatrix, ShaderResourceView texture)
+        private bool SetShaderParameters(DeviceContext deviceContext, Matrix worldMatrix, Matrix viewMatrix, Matrix projectionMatrix, ShaderResourceView texture, Matrix colorRotationMatrix)
         {
             try
             {
@@ -97,7 +103,8 @@ namespace fluid.D3DrawModelsSources
                 {
                     world = worldMatrix,
                     view = viewMatrix,
-                    projection = projectionMatrix
+                    projection = projectionMatrix,
+                    colorRotation = colorRotationMatrix
                 };
 
                 mappedResource.Write(matrixBuffer);
@@ -113,6 +120,7 @@ namespace fluid.D3DrawModelsSources
 
                 // Set shader resource in the pixel shader.
                 deviceContext.PixelShader.SetShaderResource(0, texture);
+                deviceContext.PixelShader.SetConstantBuffer(bufferNumber, ConstantMatrixBuffer);
 
                 return true;
             }
@@ -181,28 +189,28 @@ namespace fluid.D3DrawModelsSources
                 // Now setup the layout of the data that goes into the shader.
                 // This setup needs to match the VertexType structure in the Model and in the shader.
                 var inputElements = new InputElement[]
-				{
-					new InputElement()
-					{
-						SemanticName = "POSITION",
-						SemanticIndex = 0,
-						Format = Format.R32G32B32_Float,
-						Slot = 0,
-						AlignedByteOffset = 0,
-						Classification = InputClassification.PerVertexData,
-						InstanceDataStepRate = 0
-					},
-					new InputElement()
-					{
-						SemanticName = "TEXCOORD",
-						SemanticIndex = 0,
-						Format = Format.R32G32_Float,
-						Slot = 0,
-						AlignedByteOffset = Vertex.AppendAlignedElement,
-						Classification = InputClassification.PerVertexData,
-						InstanceDataStepRate = 0
-					}
-				};
+                {
+                    new InputElement()
+                    {
+                        SemanticName = "POSITION",
+                        SemanticIndex = 0,
+                        Format = Format.R32G32B32_Float,
+                        Slot = 0,
+                        AlignedByteOffset = 0,
+                        Classification = InputClassification.PerVertexData,
+                        InstanceDataStepRate = 0
+                    },
+                    new InputElement()
+                    {
+                        SemanticName = "TEXCOORD",
+                        SemanticIndex = 0,
+                        Format = Format.R32G32_Float,
+                        Slot = 0,
+                        AlignedByteOffset = Vertex.AppendAlignedElement,
+                        Classification = InputClassification.PerVertexData,
+                        InstanceDataStepRate = 0
+                    }
+                };
 
                 // Create the vertex input the layout.
                 Layout = new InputLayout(device, ShaderSignature.GetInputSignature(vertexShaderByteCode), inputElements);

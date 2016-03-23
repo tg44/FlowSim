@@ -9,6 +9,8 @@ using SharpDX.DXGI;
 using Texture3D = SharpDX.Toolkit.Graphics.Texture3D;
 using SharpDX.Direct3D;
 using System.Drawing;
+using fluid.D3DrawModelsSources.DrawTools;
+using fluid.D3DrawModelsSources.ShaderLoaders;
 
 namespace fluid.D3DrawModelsSources
 {
@@ -29,6 +31,8 @@ namespace fluid.D3DrawModelsSources
         public Texture3D volumeDensityTex;
         public Texture3D volumeVelocityTex;
         public Texture3D volumeTempTex;
+        public Texture3D volumeWallTex;
+        public Texture3D volumeVelocityFieldTex;
 
         public Texture3D nextVelocityTexture;
         public Texture3D nextDensityTexture;
@@ -40,6 +44,8 @@ namespace fluid.D3DrawModelsSources
         public ShaderResourceView fdvolumeDivergence;
         public ShaderResourceView fdvolumeDensity;
         public ShaderResourceView fdvolumeVelocity;
+        public ShaderResourceView fdvolumeWallTex;
+        public ShaderResourceView fdvolumeVelocityFieldTex;
 
         public ShaderResourceView nextVelocityTexturesrv;
         public ShaderResourceView nextDensityTexturesrv;
@@ -51,6 +57,8 @@ namespace fluid.D3DrawModelsSources
         public UnorderedAccessView volumeDensityTexUav;
         public UnorderedAccessView volumeVelocityTexUav;
         public UnorderedAccessView volumeTempTexUav;
+        public UnorderedAccessView volumeWallTexUav;
+        public UnorderedAccessView volumeVelocityFieldTexUav;
 
         public UnorderedAccessView nextVelocityTextureUav;
         public UnorderedAccessView nextDensityTextureUav;
@@ -58,7 +66,7 @@ namespace fluid.D3DrawModelsSources
         public UnorderedAccessView nextTemperatureTextureUav;
 
 
-        public Vector3 vDimension = new Vector3(20, 20, 20);
+        public Vector3 vDimension = new Vector3(128, 128, 128);
 
         Texture2D frontText;
         Texture2D backText;
@@ -119,6 +127,8 @@ namespace fluid.D3DrawModelsSources
             fdvolumeDivergence = new ShaderResourceView(DX11.DeviceContext.Device, volumeDivergenceTex);
             fdvolumeDensity = new ShaderResourceView(DX11.DeviceContext.Device, volumeDensityTex);
             fdvolumeVelocity = new ShaderResourceView(DX11.DeviceContext.Device, volumeVelocityTex);
+            fdvolumeVelocityFieldTex = new ShaderResourceView(DX11.DeviceContext.Device, volumeVelocityFieldTex);
+            fdvolumeWallTex = new ShaderResourceView(DX11.DeviceContext.Device, volumeWallTex);
 
             nextVelocityTexturesrv = new ShaderResourceView(DX11.DeviceContext.Device, nextVelocityTexture);
             nextDensityTexturesrv = new ShaderResourceView(DX11.DeviceContext.Device, nextDensityTexture);
@@ -129,7 +139,9 @@ namespace fluid.D3DrawModelsSources
             volumeDivergenceTexUav = new UnorderedAccessView(DX11.DeviceContext.Device, volumeDivergenceTex);
             volumeDensityTexUav = new UnorderedAccessView(DX11.DeviceContext.Device, volumeDensityTex);
             volumeVelocityTexUav = new UnorderedAccessView(DX11.DeviceContext.Device, volumeVelocityTex);
-            volumeVelocityTexUav = new UnorderedAccessView(DX11.DeviceContext.Device, volumeTempTex);
+            volumeTempTexUav = new UnorderedAccessView(DX11.DeviceContext.Device, volumeTempTex);
+            volumeVelocityFieldTexUav = new UnorderedAccessView(DX11.DeviceContext.Device, volumeVelocityFieldTex);
+            volumeWallTexUav = new UnorderedAccessView(DX11.DeviceContext.Device, volumeWallTex);
 
             nextVelocityTextureUav = new UnorderedAccessView(DX11.DeviceContext.Device, nextVelocityTexture);
             nextDensityTextureUav = new UnorderedAccessView(DX11.DeviceContext.Device, nextDensityTexture);
@@ -138,6 +150,7 @@ namespace fluid.D3DrawModelsSources
 
             volumePressureTexUav.DebugName = "vptu";
             volumeDensityTexUav.DebugName = "vdtu";
+
 
             Texture2DDescription desc = new Texture2DDescription
             {
@@ -183,18 +196,29 @@ namespace fluid.D3DrawModelsSources
             return true;
         }
 
+        public bool PhisicsStep()
+        {
+            PhysicsShader.Render(DX11.DeviceContext);
+            DX11.ResetDeviceContext();
+            return true;
+        }
+
+
         public bool Render(Matrix worldMatrix, Matrix viewMatrix, Matrix projectionMatrix)
         {
             //worldMatrix = worldMatrix * Matrix.Translation(-1.5f, 0, -1.5f);
             Matrix worldViewProj = worldMatrix * viewMatrix * projectionMatrix;
 
             frames++;
-
-            if (frames % 1 == 0)
+            if (frames == 12)
+                PhisicsStep();
+            if (frames == 24)
+                PhisicsStep();
+            if (frames == 20)
             {
-                PhysicsShader.Render(DX11.DeviceContext);
+                PhisicsStep();
+                frames = 0;
             }
-            DX11.ResetDeviceContext();
 
             //volumePressureTex.SetData<float>(scalar);
 
@@ -324,11 +348,24 @@ namespace fluid.D3DrawModelsSources
                     for (int k = 0; k < vDimension.Z; k++)
                     {
                         int l = (int)(i * vDimension.Y * vDimension.Z + j * vDimension.Z + k);
-                        //scalar[l] = 0.9f;
-                        scalar[l] = l / (vDimension.X * vDimension.Y * vDimension.Z);
+                        scalar[l] = 0.2f;
+                        //scalar[l] = 1 - l / (vDimension.X * vDimension.Y * vDimension.Z);
                     }
                 }
             }
+            for (int i = 30; i < 50; i++)
+            {
+                for (int j = 30; j < 50; j++)
+                {
+                    for (int k = 30; k < 50; k++)
+                    {
+                        int l = (int)(i * vDimension.Y * vDimension.Z + j * vDimension.Z + k);
+                        scalar[l] = 0.9f;
+                        //scalar[l] = 1 - l / (vDimension.X * vDimension.Y * vDimension.Z);
+                    }
+                }
+            }
+
             float[] scalar4d0 = new float[size * 4];
             for (int i = 0; i < scalar4d0.Length; i++)
             {
@@ -345,6 +382,13 @@ namespace fluid.D3DrawModelsSources
                 //if (i % 4 == 2) scalar4d0010[i] = 0.001f; else scalar4d0010[i] = 0;
                 scalar4d0010[i] = 0f;
             }
+            float[] scalar1d05 = new float[size];
+            for (int i = 0; i < scalar1d0.Length; i++)
+            {
+                scalar1d05[i] = 0.5f;
+            }
+
+
             scalar4d0010[(int)(10 * vDimension.Y * vDimension.Z + 10 * vDimension.Z + 20) * 4] = 0.5f;
             scalar4d0010[(int)(10 * vDimension.Y * vDimension.Z + 10 * vDimension.Z + 20) * 4 + 1] = 0.5f;
             scalar4d0010[(int)(10 * vDimension.Y * vDimension.Z + 10 * vDimension.Z + 20) * 4 + 2] = 0.5f;
@@ -353,6 +397,7 @@ namespace fluid.D3DrawModelsSources
             scalar4d0010[(int)(10 * vDimension.Y * vDimension.Z + 10 * vDimension.Z + 10) * 4 + 1] = 0.5f;
             scalar4d0010[(int)(10 * vDimension.Y * vDimension.Z + 10 * vDimension.Z + 10) * 4 + 2] = 0.5f;
 
+            float[] wall = initWall();
 
             var toolkitdiv = SharpDX.Toolkit.Graphics.GraphicsDevice.New(DX11.Device);
             volumePressureTex = Texture3D.New(toolkitdiv, new Texture3DDescription
@@ -386,6 +431,26 @@ namespace fluid.D3DrawModelsSources
                 Usage = ResourceUsage.Default
             });
             volumeVelocityTex = Texture3D.New(toolkitdiv, new Texture3DDescription
+            {
+                BindFlags = BindFlags.ShaderResource | BindFlags.UnorderedAccess,
+                Format = Format.R32G32B32A32_Float,
+                Width = (int)vDimension.X,
+                Height = (int)vDimension.Y,
+                Depth = (int)vDimension.Z,
+                MipLevels = 1,
+                Usage = ResourceUsage.Default
+            });
+            volumeVelocityFieldTex = Texture3D.New(toolkitdiv, new Texture3DDescription
+            {
+                BindFlags = BindFlags.ShaderResource | BindFlags.UnorderedAccess,
+                Format = Format.R32G32B32A32_Float,
+                Width = (int)vDimension.X,
+                Height = (int)vDimension.Y,
+                Depth = (int)vDimension.Z,
+                MipLevels = 1,
+                Usage = ResourceUsage.Default
+            });
+            volumeWallTex = Texture3D.New(toolkitdiv, new Texture3DDescription
             {
                 BindFlags = BindFlags.ShaderResource | BindFlags.UnorderedAccess,
                 Format = Format.R32G32B32A32_Float,
@@ -451,9 +516,51 @@ namespace fluid.D3DrawModelsSources
 
             volumePressureTex.SetData<float>(scalar);
             volumeTempTex.SetData<float>(scalar);
-            volumeDensityTex.SetData<float>(scalar4d0010);
-            volumeDivergenceTex.SetData<float>(scalar1d0);
-            volumeVelocityTex.SetData<float>(scalar4d0010);
+            volumeDensityTex.SetData<float>(scalar4d0);
+            volumeDivergenceTex.SetData<float>(scalar1d05);
+            volumeVelocityTex.SetData<float>(scalar4d0);
+            volumeWallTex.SetData<float>(wall);
+        }
+
+        private float[] initWall()
+        {
+            int size = (int)(vDimension.X * vDimension.Y * vDimension.Z);
+            float[] ret = new float[size * 4];
+            /*
+            //all vexel is a notwall
+            for (int i = 0; i < size * 4; i++)
+            {
+                if (i % 4 == 3)
+                {
+                    ret[i] = 1;
+                }
+            }*/
+
+            for (int i = 0; i < vDimension.X; i++)
+            {
+                Vector3 vec = new Vector3(0, 0, 0);
+                if (i == 0) vec.X = 1;
+                if (i == vDimension.X - 1) vec.X = -1;
+                for (int j = 0; j < vDimension.Y; j++)
+                {
+                    vec.Y = 0;
+                    if (j == 0) vec.Y = 1;
+                    if (j == vDimension.Y - 1) vec.Y = -1;
+                    for (int k = 0; k < vDimension.Z; k++)
+                    {
+                        vec.Z = 0;
+                        if (k == 0) vec.Z = 1;
+                        if (k == vDimension.Z - 1) vec.Z = -1;
+                        ret[(int)(i * vDimension.Y * vDimension.Z + j * vDimension.Z + k) * 4 + 0] = -vec.X;
+                        ret[(int)(i * vDimension.Y * vDimension.Z + j * vDimension.Z + k) * 4 + 1] = -vec.Y;
+                        ret[(int)(i * vDimension.Y * vDimension.Z + j * vDimension.Z + k) * 4 + 2] = -vec.Z;
+                        ret[(int)(i * vDimension.Y * vDimension.Z + j * vDimension.Z + k) * 4 + 3] = vec.Length();
+                    }
+                }
+            }
+
+
+            return ret;
         }
 
         public void animate3DTexture(int t)
@@ -483,7 +590,7 @@ namespace fluid.D3DrawModelsSources
             if (w < 0) w = 0;
             return (int)(x * vDimension.Y * vDimension.Z * 2 + y * vDimension.Z * 2 + z * 2 + w);
         }
-        public void Shutdown()
+        public void Dispose()
         {
             /*if (frontRenderTexture != null) { frontRenderTexture.Dispose(); }
             if (frontRTV != null) { frontRTV.Dispose(); }

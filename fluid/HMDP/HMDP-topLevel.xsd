@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="HMDP-topLevel"
+    targetNamespace="http://tempuri.org/HMDP-topLevel.xsd"
+    elementFormDefault="qualified"
+    xmlns="http://tempuri.org/HMDP-topLevel.xsd"
+    xmlns:mstns="http://tempuri.org/HMDP-topLevel.xsd"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+>
+
+  <xs:element name="HMDP">
+    <xs:complexType>
+      <xs:sequence>
+          <xs:element name="UID" type="xs:string"/>
+          <xs:element name="GlobalHardwareData">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="name" type="xs:string"/>
+                <xs:element name="hwtype" type="hwtype"/>
+                <xs:element name="description" type="xs:string"/>
+                <xs:element name="manufacture" type="xs:string"/>
+                <xs:element name="url" type="xs:string"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+
+          <xs:element name="Creator">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="creatorUID" type="xs:string"/>
+                <xs:element name="name" type="xs:string"/>
+                <xs:element name="description" type="xs:string"/>
+                <xs:element name="email" type="xs:string"/>
+                <xs:element name="url" type="xs:string"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+
+          <xs:element name="Model2D">
+            <xs:complexType>
+              <xs:sequence>
+                <xs:element name="icon-file" type="xs:string"/>
+                <xs:element name="heat-file" type="xs:string"/>
+                <xs:element name="throughput-file" type="xs:string"/>
+                <xs:element name="solid-file" type="xs:string"/>
+                <xs:element name="width" type="xs:int"/>
+                <xs:element name="height" type="xs:int"/>
+              </xs:sequence>
+            </xs:complexType>
+          </xs:element>
+
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:simpleType name="hwtype" final="restriction" >
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="fan" />
+      <xs:enumeration value="case" />
+      <xs:enumeration value="cpu-fan" />
+      <xs:enumeration value="gpu" />
+      <xs:enumeration value="hdd" />
+      <xs:enumeration value="ssd" />
+    </xs:restriction>
+  </xs:simpleType>
+  
+</xs:schema>

@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Buffer = SharpDX.Direct3D11.Buffer;
 
-namespace fluid.D3DrawModelsSources
+namespace fluid.D3DrawModelsSources.ShaderLoaders
 {
     class ColorShader
     {
@@ -40,7 +40,7 @@ namespace fluid.D3DrawModelsSources
             return InitializeShader(device, windowHandler, @"..\..\Shaders\color.vs", @"..\..\Shaders\color.ps");
         }
 
-        public void Shuddown()
+        public void Dispose()
         {
             // Shutdown the vertex and pixel shaders as well as the related objects.
             ShuddownShader();
@@ -159,28 +159,28 @@ namespace fluid.D3DrawModelsSources
                 // Now setup the layout of the data that goes into the shader.
                 // This setup needs to match the VertexType structure in the Model and in the shader.
                 var inputElements = new InputElement[]
-				{
-					new InputElement()
-					{
-						SemanticName = "POSITION",
-						SemanticIndex = 0,
-						Format = Format.R32G32B32A32_Float,
-						Slot = 0,
-						AlignedByteOffset = 0,
-						Classification = InputClassification.PerVertexData,
-						InstanceDataStepRate = 0
-					},
-					new InputElement()
-					{
-						SemanticName = "COLOR",
-						SemanticIndex = 0,
-						Format = Format.R32G32B32A32_Float,
-						Slot = 0,
-						AlignedByteOffset = ColorShader.Vertex.AppendAlignedElement,
-						Classification = InputClassification.PerVertexData,
-						InstanceDataStepRate = 0
-					}
-				};
+                {
+                    new InputElement()
+                    {
+                        SemanticName = "POSITION",
+                        SemanticIndex = 0,
+                        Format = Format.R32G32B32A32_Float,
+                        Slot = 0,
+                        AlignedByteOffset = 0,
+                        Classification = InputClassification.PerVertexData,
+                        InstanceDataStepRate = 0
+                    },
+                    new InputElement()
+                    {
+                        SemanticName = "COLOR",
+                        SemanticIndex = 0,
+                        Format = Format.R32G32B32A32_Float,
+                        Slot = 0,
+                        AlignedByteOffset = ColorShader.Vertex.AppendAlignedElement,
+                        Classification = InputClassification.PerVertexData,
+                        InstanceDataStepRate = 0
+                    }
+                };
 
                 // Create the vertex input the layout.
                 Layout = new InputLayout(device, ShaderSignature.GetInputSignature(vertexShaderByteCode), inputElements);

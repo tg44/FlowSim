@@ -10,7 +10,7 @@ using Device = SharpDX.Direct3D11.Device;
 using SharpDX.D3DCompiler;
 using SharpDX.DXGI;
 
-namespace fluid.D3DrawModelsSources
+namespace fluid.D3DrawModelsSources.ShaderLoaders
 {
     class LightShader
     {
@@ -60,7 +60,7 @@ namespace fluid.D3DrawModelsSources
             return InitializeShader(device, windowHandler, "light.vs", "light.ps");
         }
 
-        public void Shuddown()
+        public void Dispose()
         {
             // Shutdown the vertex and pixel shaders as well as the related objects.
             ShuddownShader();
@@ -224,38 +224,38 @@ namespace fluid.D3DrawModelsSources
                 // Now setup the layout of the data that goes into the shader.
                 // This setup needs to match the VertexType structure in the Model and in the shader.
                 var inputElements = new InputElement[]
-				{
-					new InputElement()
-					{
-						SemanticName = "POSITION",
-						SemanticIndex = 0,
-						Format = Format.R32G32B32_Float,
-						Slot = 0,
-						AlignedByteOffset = 0,
-						Classification = InputClassification.PerVertexData,
-						InstanceDataStepRate = 0
-					},
-					new InputElement()
-					{
-						SemanticName = "TEXCOORD",
-						SemanticIndex = 0,
-						Format = Format.R32G32_Float,
-						Slot = 0,
-						AlignedByteOffset = Vertex.AppendAlignedElement1,
-						Classification = InputClassification.PerVertexData,
-						InstanceDataStepRate = 0
-					},
-					new InputElement()
-					{
-						SemanticName = "NORMAL",
-						SemanticIndex = 0,
-						Format = Format.R32G32B32_Float,
-						Slot = 0,
-						AlignedByteOffset = Vertex.AppendAlignedElement2,
-						Classification = InputClassification.PerVertexData,
-						InstanceDataStepRate = 0
-					}
-				};
+                {
+                    new InputElement()
+                    {
+                        SemanticName = "POSITION",
+                        SemanticIndex = 0,
+                        Format = Format.R32G32B32_Float,
+                        Slot = 0,
+                        AlignedByteOffset = 0,
+                        Classification = InputClassification.PerVertexData,
+                        InstanceDataStepRate = 0
+                    },
+                    new InputElement()
+                    {
+                        SemanticName = "TEXCOORD",
+                        SemanticIndex = 0,
+                        Format = Format.R32G32_Float,
+                        Slot = 0,
+                        AlignedByteOffset = Vertex.AppendAlignedElement1,
+                        Classification = InputClassification.PerVertexData,
+                        InstanceDataStepRate = 0
+                    },
+                    new InputElement()
+                    {
+                        SemanticName = "NORMAL",
+                        SemanticIndex = 0,
+                        Format = Format.R32G32B32_Float,
+                        Slot = 0,
+                        AlignedByteOffset = Vertex.AppendAlignedElement2,
+                        Classification = InputClassification.PerVertexData,
+                        InstanceDataStepRate = 0
+                    }
+                };
 
                 // Create the vertex input the layout.
                 Layout = new InputLayout(device, ShaderSignature.GetInputSignature(vertexShaderByteCode), inputElements);

@@ -1,4 +1,5 @@
-﻿using SharpDX;
+﻿using fluid.D3DrawModelsSources;
+using SharpDX;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -19,20 +20,19 @@ namespace fluid
             selectionRangeSlider1.Min = -100;
             selectionRangeSlider1.SelectedMin = 0;
             selectionRangeSlider1.SelectedMax = 100;*/
+            label1.Text = "Video Card Desc:    ";
+            label2.Text = "Video Card Memory:  ";
+            label3.Text = "Frames per sec:     ";
+            label4.Text = "CPU usege:          ";
         }
 
         private void sartRender(object sender, MouseEventArgs e)
         {
-            //d3DPanel1.drawer=new D3DrawBG();
-            uint z = 10;
-            int f = (int)z;
-
             d3DPanel1.drawer = new D3DrawModels();
             d3DPanel1.Initialize();
             refreshLabels();
             labelTimer.Enabled = true;
             d3DPanel1.startRendering();
-
         }
         private void refreshLabels()
         {
@@ -91,6 +91,26 @@ namespace fluid
         private void SensitivityChanged(object sender, EventArgs e)
         {
             d3DPanel1.Sensitivitymap = new SizeF(Sensitivity.SelectedMin, Sensitivity.SelectedMax);
+        }
+
+        private void oneStep(object sender, EventArgs e)
+        {
+            d3DPanel1.PhisicStep = true;
+        }
+
+        private void startPhisics(object sender, EventArgs e)
+        {
+            try
+            {
+                d3DPanel1.PhisicsStepSize = Convert.ToUInt16(textBox1.Text);
+                d3DPanel1.PhisicsStarted = true;
+            }
+            catch { }
+        }
+
+        private void stopPhisics(object sender, EventArgs e)
+        {
+            d3DPanel1.PhisicsStarted = false;
         }
     }
 }

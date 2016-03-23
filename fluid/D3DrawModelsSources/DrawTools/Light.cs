@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using SharpDX;
 
-namespace fluid.D3DrawModelsSources
+namespace fluid.D3DrawModelsSources.DrawTools
 {
     class Light
     {

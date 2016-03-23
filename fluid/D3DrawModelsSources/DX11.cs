@@ -193,6 +193,7 @@ namespace fluid.D3DrawModelsSources
                 blendStateDesc.RenderTarget[0].RenderTargetWriteMask = ColorWriteMaskFlags.All;
                 // Create the blend state using the description.
                 AlphaEnableBlendingState = new BlendState(device, blendStateDesc);
+                //AlphaEnableBlendingState.SetPrivateData("aeblendstate");
 
                 // Modify the description to create an disabled blend state description.
                 blendStateDesc.RenderTarget[0].IsBlendEnabled = false;
@@ -208,7 +209,7 @@ namespace fluid.D3DrawModelsSources
             }
         }
 
-        public void Shutdown()
+        public void Dispose()
         {
             // Before shutting down set to windowed mode or when you release the swap chain it will throw an exception.
             if (SwapChain != null)
@@ -274,6 +275,15 @@ namespace fluid.D3DrawModelsSources
                 RenderTargetViewInObj.Dispose();
                 RenderTargetViewInObj = null;
             }
+
+            if (SwapChain != null)
+            {
+                SwapChain.Dispose();
+                SwapChain = null;
+            }
+
+            DeviceContext.Dispose();
+
             if (Device != null)
             {
                 var deviceDebug = new DeviceDebug(Device);
@@ -282,11 +292,7 @@ namespace fluid.D3DrawModelsSources
                 Device = null;
             }
 
-            if (SwapChain != null)
-            {
-                SwapChain.Dispose();
-                SwapChain = null;
-            }
+
 
         }
 
@@ -374,6 +380,13 @@ namespace fluid.D3DrawModelsSources
                 }
             };
 
+            if (DepthStencilState != null)
+            {
+                DepthStencilState.Dispose();
+                DepthStencilState = null;
+            }
+
+
             // Create the depth stencil state.
             DepthStencilState = new DepthStencilState(Device, depthStencilDesc);
 
@@ -390,6 +403,17 @@ namespace fluid.D3DrawModelsSources
                     MipSlice = 0
                 }
             };
+
+            if (DepthStencilView != null)
+            {
+                DepthStencilView.Dispose();
+                DepthStencilView = null;
+            }
+            if (DepthStencilViewInObj != null)
+            {
+                DepthStencilViewInObj.Dispose();
+                DepthStencilViewInObj = null;
+            }
 
             // Create the depth stencil view.
             DepthStencilView = new DepthStencilView(Device, DepthStencilBuffer, depthStencilViewDesc);
@@ -412,6 +436,13 @@ namespace fluid.D3DrawModelsSources
                 IsScissorEnabled = false,
                 SlopeScaledDepthBias = .0f
             };
+
+
+            if (RasterState != null)
+            {
+                RasterState.Dispose();
+                RasterState = null;
+            }
 
             // Create the rasterizer state from the description we just filled out.
             RasterState = new RasterizerState(Device, rasterDesc);

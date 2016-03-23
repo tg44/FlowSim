@@ -4,15 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Diagnostics;
 
-namespace fluid.D3DrawModelsSources
+namespace fluid.D3DrawModelsSources.DrawTools
 {
     class FPS
     {
-        long count;
+        public long count { get; private set; }
         Stopwatch watch;
         public float Value { get; private set; }
 
-        public bool Initialize(){
+        public bool Initialize()
+        {
             count = 0;
             Value = 0;
             watch = Stopwatch.StartNew();
@@ -30,7 +31,8 @@ namespace fluid.D3DrawModelsSources
             }
         }
 
-        public void Dispose(){
+        public void Dispose()
+        {
             watch.Stop();
         }
     }

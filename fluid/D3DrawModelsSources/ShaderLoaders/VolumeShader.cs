@@ -13,7 +13,7 @@ using System.Drawing;
 //using SharpDX.Toolkit.Graphics;
 //using Effect = SharpDX.Toolkit.Graphics.Effect;
 
-namespace fluid.D3DrawModelsSources
+namespace fluid.D3DrawModelsSources.ShaderLoaders
 {
     class VolumeShader
     {
@@ -64,7 +64,7 @@ namespace fluid.D3DrawModelsSources
             return InitializeShader(device, windowHandler, "RayCasting.fx");
         }
 
-        public void Shuddown()
+        public void Dispose()
         {
             // Shutdown the vertex and pixel shaders as well as the related objects.
             ShutdownShader();
@@ -248,21 +248,21 @@ namespace fluid.D3DrawModelsSources
         }
         public void unboundShaderRes(DeviceContext deviceContext)
         {
-
-            //eff.GetVariableByIndex(0).AsShaderResource().SetResource(null);
+            //eff.GetVariableByName("outputDivergence").AsUnorderedAccessView().Set((UnorderedAccessView)null);
+            eff.GetVariableByName("Front").AsShaderResource().SetResource(null);
             deviceContext.PixelShader.SetShaderResource(0, null);
-            // eff.GetVariableByIndex(1).AsShaderResource().SetResource(null);
+            eff.GetVariableByName("Back").AsShaderResource().SetResource(null);
             deviceContext.PixelShader.SetShaderResource(1, null);
-            // eff.GetVariableByIndex(2).AsShaderResource().SetResource(null);
+            eff.GetVariableByName("WDepth").AsShaderResource().SetResource(null);
             deviceContext.PixelShader.SetShaderResource(2, null);
-            //eff.GetVariableByIndex(3).AsShaderResource().SetResource(null);
+            eff.GetVariableByName("FDepth").AsShaderResource().SetResource(null);
             deviceContext.PixelShader.SetShaderResource(3, null);
-            //eff.GetVariableByIndex(4).AsShaderResource().SetResource(null);
+            eff.GetVariableByName("BDepth").AsShaderResource().SetResource(null);
             deviceContext.PixelShader.SetShaderResource(4, null);
-            // eff.GetVariableByIndex(5).AsShaderResource().SetResource(null);
-            deviceContext.PixelShader.SetShaderResource(5, null);
-            // eff.GetVariableByIndex(6).AsShaderResource().SetResource(null);
-            deviceContext.PixelShader.SetShaderResource(6, null);
+            eff.GetVariableByName("VolumePressure").AsShaderResource().SetResource(null);
+            //deviceContext.PixelShader.SetShaderResource(5, null);
+            eff.GetVariableByName("VolumeTemp").AsShaderResource().SetResource(null);
+            //deviceContext.PixelShader.SetShaderResource(6, null);
 
         }
         private bool InitializeShader(Device device, IntPtr windowHandler, string vsFileName)
@@ -310,28 +310,28 @@ namespace fluid.D3DrawModelsSources
                 efftech = eff.GetTechniqueByName(effTech);
 
                 var inputElements = new InputElement[]
-				{
-					new InputElement()
-					{
-						SemanticName = "POSITION",
-						SemanticIndex = 0,
-						Format = Format.R32G32B32A32_Float,
-						Slot = 0,
-						AlignedByteOffset = 0,
-						Classification = InputClassification.PerVertexData,
-						InstanceDataStepRate = 0
-					},
-					new InputElement()
-					{
-						SemanticName = "TEXCOORD",
-						SemanticIndex = 0,
-						Format = Format.R32G32_Float,
-						Slot = 0,
-						AlignedByteOffset = Vertex.AppendAlignedElement,
-						Classification = InputClassification.PerVertexData,
-						InstanceDataStepRate = 0
-					}
-				};
+                {
+                    new InputElement()
+                    {
+                        SemanticName = "POSITION",
+                        SemanticIndex = 0,
+                        Format = Format.R32G32B32A32_Float,
+                        Slot = 0,
+                        AlignedByteOffset = 0,
+                        Classification = InputClassification.PerVertexData,
+                        InstanceDataStepRate = 0
+                    },
+                    new InputElement()
+                    {
+                        SemanticName = "TEXCOORD",
+                        SemanticIndex = 0,
+                        Format = Format.R32G32_Float,
+                        Slot = 0,
+                        AlignedByteOffset = Vertex.AppendAlignedElement,
+                        Classification = InputClassification.PerVertexData,
+                        InstanceDataStepRate = 0
+                    }
+                };
                 Layout = new InputLayout(device, efftech.GetPassByIndex(0).Description.Signature, inputElements);
                 /*
                 if (effTech == VolumeShader.RENDER_FRONT)
@@ -377,7 +377,7 @@ namespace fluid.D3DrawModelsSources
 
         public bool Render(DeviceContext deviceContext, int p1, Matrix worldViewProj, Vector3 vDimension, String p2, Volume volume)
         {
-            return Render(deviceContext, p1, worldViewProj, vDimension, p2, volume.frontSRV, volume.backSRV, volume.inObjectsDepthSRV, volume.frontDepthSRV, volume.backDepthSRV, volume.fdvolumePressure, volume.fdvolumeTemp, volume.Heatmap, volume.Sensitivitymap);
+            return Render(deviceContext, p1, worldViewProj, vDimension, p2, volume.frontSRV, volume.backSRV, volume.inObjectsDepthSRV, volume.frontDepthSRV, volume.backDepthSRV, volume.fdvolumeDensity, volume.fdvolumeTemp, volume.Heatmap, volume.Sensitivitymap);
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace fluid.D3DrawModelsSources
+namespace fluid.D3DrawModelsSources.DrawTools
 {
     class Noise
     {

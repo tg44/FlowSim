@@ -7,13 +7,16 @@ using System.Text;
 using fluid.D3DrawModelsSources;
 using SharpDX;
 using System.Drawing;
+using fluid.Forms;
+using fluid.D3DrawModelsSources.DrawTools;
+using fluid.D3DrawModelsSources.ShaderLoaders;
 
-namespace fluid
+namespace fluid.D3DrawModelsSources
 {
     class D3DrawModels : D3Drawer
     {
 
-        public Camera _camera { get; set; }
+        private Camera _camera { get; set; }
         private Model Box { get; set; }
         private ColorShader ColorShader { get; set; }
         private LightShader LightShader { get; set; }
@@ -38,8 +41,14 @@ namespace fluid
         private FPS _fps;
         private CPU _cpu;
 
+        public bool PhisicsStep { get; set; }
+        public bool PhisicsStarted { get; set; }
+        public int PhisicsStepSize { get; set; }
+
         bool D3Drawer.init(DX11 DX11, SizeF Heatmap, SizeF Sensitivitymap)
         {
+            if (this.DX11 != null) return false;
+
             this.DX11 = DX11;
             _fps = new FPS();
             _fps.Initialize();
@@ -141,6 +150,14 @@ namespace fluid
 
             DX11.TurnOffInObjectRender();
 
+
+            if (PhisicsStep || (PhisicsStarted && _fps.count % PhisicsStepSize == 0))
+            {
+                Volume.PhisicsStep();
+                PhisicsStep = false;
+            }
+
+
             //render the actual Volume
             Volume.Render(worldMatrix, viewMatrix, projectionMatrix);
 
@@ -151,11 +168,16 @@ namespace fluid
 
         void D3Drawer.Dispose()
         {
-            if (Floor != null) Floor.Shutdown();
-            if (Volume != null) Volume.Shutdown();
+            if (Floor != null) Floor.Dispose();
+            if (Volume != null) Volume.Dispose();
         }
 
         void D3Drawer.addVars(RenderTargetView renderView, SwapChain swapChain, DeviceContext deviceContext, SharpDX.Direct3D11.Device device, int Width, int Height, IntPtr Handler)
         { }
+
+        public MovableModel addFileLoader(HMDP.HMDPLoader loader)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

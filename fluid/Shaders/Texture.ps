@@ -3,6 +3,13 @@
 //////////////////////
 Texture2D shaderTexture;
 SamplerState SampleType;
+cbuffer MatrixBuffer
+{
+	matrix worldMatrix;
+	matrix viewMatrix;
+	matrix projectionMatrix;
+	matrix colorRotationMatrix;
+};
 
 //////////////////////
 ////   TYPEDEFS
@@ -22,6 +29,9 @@ float4 TexturePixelShader(PixelInputType input) : SV_TARGET
 
 	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
 	textureColor = shaderTexture.Sample(SampleType, input.tex);
+	textureColor=mul(textureColor,colorRotationMatrix);
+
+	//textureColor = float4(0.2,0.8,0.7,0.5);
 
 	return textureColor;
 }

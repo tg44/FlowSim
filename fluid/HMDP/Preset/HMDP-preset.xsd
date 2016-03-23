@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="HMDP-preset"
+    targetNamespace="http://tempuri.org/HMDP-preset.xsd"
+    elementFormDefault="qualified"
+    xmlns="http://tempuri.org/HMDP-preset.xsd"
+    xmlns:mstns="http://tempuri.org/HMDP-preset.xsd"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+>
+  <xs:element name="HMDP-Preset">
+    <xs:complexType>
+      <xs:sequence>
+        
+        <xs:element name="is2D" type="xs:boolean"/>
+        <xs:element name="is3D" type="xs:boolean"/>
+        
+          <xs:choice minOccurs="1" maxOccurs="unbounded">
+            <xs:element name="Item">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:element name="UID" type="xs:string"/>
+                  <xs:element name="x" type="xs:int"/>
+                  <xs:element name="y" type="xs:int"/>
+                  <xs:element name="z" type="xs:int"/>
+                  <xs:element name="rotation" type="xs:int"/>
+                </xs:sequence>
+              </xs:complexType>
+            </xs:element>
+          </xs:choice>
+        
+      </xs:sequence>
+    </xs:complexType>
+    
+  </xs:element>
+  
+</xs:schema>

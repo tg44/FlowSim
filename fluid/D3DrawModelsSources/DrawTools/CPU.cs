@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
-namespace fluid.D3DrawModelsSources
+namespace fluid.D3DrawModelsSources.DrawTools
 {
     class CPU
     {
@@ -44,7 +44,14 @@ namespace fluid.D3DrawModelsSources
                 if (watch.ElapsedMilliseconds >= 1000)
                 {
                     watch.Restart();
-                    CpuUsage = counter.NextValue();
+                    try
+                    {
+                        CpuUsage = counter.NextValue();
+                    }
+                    catch
+                    {
+                        CanReadCpu = false;
+                    }
                 }
             }
         }

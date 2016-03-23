@@ -3,6 +3,8 @@ Texture3D<float3> density;
 Texture3D<float> pressure;
 Texture3D<float> divergence;
 Texture3D<float> temperature;
+Texture3D<float4> wall;
+Texture3D<float4> velocyfield;
 
 SamplerState linearSampler
 {
@@ -34,16 +36,16 @@ RWTexture3D<float> outputPressure;
 RWTexture3D<float> outputDivergence;
 RWTexture3D<float> outputTemperature;
 
-float dt=1.0/20.0;
-uint3 gridSize = uint3(20, 20, 20);
+float dt=1.0/120.0;
+float3 gridSize = float3(20, 20, 20);
 
 float3 injectionPos = float3(0.5, 0.5, 0.5);
 float3 injectionIntensity = float3(0.005, 0.005, 0.005);
 
-float dissipate= 0.995f;
+float dissipate= 1.00f;
 float decay = 0.0f;
 
-[numthreads(1, 1, 1)]
+[numthreads(128, 1, 1)]
 void csAdvect( uint3 dtid : SV_DispatchThreadID)
 {
 	//read velocity value from velocity field
@@ -51,28 +53,34 @@ void csAdvect( uint3 dtid : SV_DispatchThreadID)
 	float3 s = velocity.Load(uint4(dtid, 0)) * dt;
 
 	float3 xds = ((float3)dtid + float3(0.5,0.5,0.5)) / (float3)gridSize - s;
-	float multip = 1;
-	if(any(xds < 0 || xds > 1))
-		multip *= -1;
-	outputVelocity[dtid] = velocity.SampleLevel(clampSampler, xds, 0) * multip
-		//+  float3(0, 0.01, 0);
-		//		+ normalize(xds - injectionPos) * dt * injectionIntensity * 10.01/(length(xds - injectionPos)+0.1)
-		//		+ cross(normalize(xds - injectionPos),float3(0,0,1)) * dt * injectionIntensity * 100/(length(xds - injectionPos)+0.1)
-		//		+ float3(0,10.1,0) * dt * injectionIntensity * multip / (length(xds - injectionPos)+0.1)
-		;
+	if (any(xds < 0 || xds > 1)){
+		outputVelocity[dtid] = s;
+	}
+	else {
+		outputVelocity[dtid] = velocity.SampleLevel(clampSampler, xds, 0)
+			//+  float3(0, 0.01, 0);
+			//		+ normalize(xds - injectionPos) * dt * injectionIntensity * 10.01/(length(xds - injectionPos)+0.1)
+			//		+ cross(normalize(xds - injectionPos),float3(0,0,1)) * dt * injectionIntensity * 100/(length(xds - injectionPos)+0.1)
+			//		+ float3(0,10.1,0) * dt * injectionIntensity * multip / (length(xds - injectionPos)+0.1)
+			;
+	}
 	outputDensity[dtid] = density.SampleLevel( zeroBoundarySampler, xds, 0) 
 		//+ 1/(length(xds - injectionPos)+0.0001) * dt * injectionIntensity
 		;
-	outputTemperature[dtid] = max(0, temperature.SampleLevel(linearSampler,xds,0) * dissipate - decay)
-		;
+	
+	outputTemperature[dtid] = max(0, temperature.SampleLevel(zeroBoundarySampler, xds, 0) * dissipate - decay)
+		;/*
+	if (outputTemperature[dtid] == 0){
+		outputTemperature[dtid] = temperature[dtid];
+	}*/
 }
 
-float ambientTemperature = 0.0f;
+float ambientTemperature = 0.7f;
 float buoyancy = 1.0f;
-float weight = 0.0f;
-float3 up = (0, 0, 1);
+float weight = 0.1f;
+float3 up = float3(0.0f, 1.0f, 0.0f);
 
-[numthreads(1, 1, 1)]
+[numthreads(128, 1, 1)]
 void csBouyancy(uint3 dtid : SV_DispatchThreadID)
 {
 
@@ -82,76 +90,172 @@ void csBouyancy(uint3 dtid : SV_DispatchThreadID)
 	float D = density.Load(dtl).x;
 	float3 V = velocity.Load(dtl).xyz;
 
-		if (T > ambientTemperature)
-			V += (dt * (T - ambientTemperature) * buoyancy - D * weight) * up.xyz;
+	//if (T > ambientTemperature){
+		V += (dt * (T - ambientTemperature) * buoyancy - D * weight) * up.xyz;
+	//}
 
 	outputVelocity[dtid] = V;
 }
 
-[numthreads(1, 1, 1)]
+float energyloss = 0.001f;
+[numthreads(128, 1, 1)]
+void csWall(uint3 dtid : SV_DispatchThreadID)
+{
+	//is there a wall?
+	uint4 dtl = uint4(dtid, 0);
+	float4 w = wall.Load(dtl).xyzw;
+	float3 v = velocity.Load(dtl).xyz;
+
+	if (w.w > 0.1f){
+		float3 norm = normalize(w.xyz);
+		float3 dir = normalize(v.xyz);
+		float costetha = -1 * dot(dir,norm);
+		outputVelocity[dtid] = normalize((dir + norm * 2 * costetha))*length(v.xyz)*(1-energyloss);
+	}
+	else {
+		outputVelocity[dtid] = v;
+	}
+
+	
+}
+
+
+float velocyFieldScale = 1.0f;
+[numthreads(128, 1, 1)]
+void csVelocyField(uint3 dtid : SV_DispatchThreadID)
+{
+	//is there a field?
+	uint4 dtl = uint4(dtid, 0);
+		float4 vf = velocyfield.Load(dtl).xyzw;
+		float3 v = velocity.Load(dtl).xyz;
+
+		if (vf.w > 0.1f){
+		outputVelocity[dtid] = v.xyz + vf.xyz*velocyFieldScale;
+		}
+		else {
+			outputVelocity[dtid] = v;
+		}
+
+
+}
+
+
+[numthreads(128, 1, 1)]
 void csDivergence( uint3 dtid : SV_DispatchThreadID)
 {
 	uint4 dtl = uint4(dtid, 0);
-	dtl.x -= 1;
-	float divergence = -velocity.Load(dtl).x;
-	dtl.x += 2;
-	divergence += velocity.Load(dtl).x;
-	dtl.xy += uint2(-1,-1);
-	divergence -= velocity.Load(dtl).y;
-	dtl.y += 2;
-	divergence += velocity.Load(dtl).y;
-	dtl.yz += uint2(-1,-1);
-	divergence -= velocity.Load(dtl).z;
-	dtl.z += 2;
-	divergence += velocity.Load(dtl).z;
+	uint4 idxL = uint4(max(0, dtl.x - 1), dtl.y, dtl.z, 0);
+	uint4 idxR = uint4(min(gridSize.x - 1, dtl.x + 1), dtl.y, dtl.z, 0);
+	uint4 idxB = uint4(dtl.x,max(0, dtl.y - 1), dtl.z, 0);
+	uint4 idxT = uint4(dtl.x,min(gridSize.y - 1, dtl.y + 1), dtl.z, 0);
+	uint4 idxD = uint4(dtl.x, dtl.y, max(0, dtl.z - 1), 0);
+	uint4 idxU = uint4(dtl.x, dtl.y, min(gridSize.z - 1, dtl.z + 1), 0);
 
-	outputDivergence[dtid] = divergence * 0.5;
+	float L = velocity.Load(idxL).x;
+	float R = velocity.Load(idxR).x;
+	float B = velocity.Load(idxB).y;
+	float T = velocity.Load(idxT).y;
+	float D = velocity.Load(idxD).z;
+	float U = velocity.Load(idxU).z;
+
+	if (wall.Load(idxL).w > 0.1) L = 0;
+	if (wall.Load(idxR).w > 0.1) R = 0;
+	if (wall.Load(idxB).w > 0.1) B = 0;
+	if (wall.Load(idxT).w > 0.1) T = 0;
+	if (wall.Load(idxD).w > 0.1) D = 0;
+	if (wall.Load(idxU).w > 0.1) U = 0;
+
+	outputDivergence[dtid] = (R-L+T-B+U-D) * 0.5;
 }
 
 float jacobiAlpha = -1;
 float jacobiBeta = 6;
 
-[numthreads(1, 1, 1)]
+[numthreads(128, 1, 1)]
 void csJacobiPressure( uint3 dtid : SV_DispatchThreadID)
 {
 	uint4 dtl = uint4(dtid, 0);
-	float p = divergence.Load(dtl) * jacobiAlpha;
-	dtl.x -= 1;
-	p += pressure.Load(dtl);
-	dtl.x += 2;
-	p += pressure.Load(dtl);
-	dtl.xy += uint2(-1,-1);
-	p += pressure.Load(dtl);
-	dtl.y += 2;
-	p += pressure.Load(dtl);
-	dtl.yz += uint2(-1,-1);
-	p += pressure.Load(dtl);
-	dtl.z += 2;
-	p += pressure.Load(dtl);
+	uint4 idxL = uint4(max(0, dtl.x - 1), dtl.y, dtl.z, 0);
+	uint4 idxR = uint4(min(gridSize.x - 1, dtl.x + 1), dtl.y, dtl.z, 0);
+	uint4 idxB = uint4(dtl.x, max(0, dtl.y - 1), dtl.z, 0);
+	uint4 idxT = uint4(dtl.x, min(gridSize.y - 1, dtl.y + 1), dtl.z, 0);
+	uint4 idxD = uint4(dtl.x, dtl.y, max(0, dtl.z - 1), 0);
+	uint4 idxU = uint4(dtl.x, dtl.y, min(gridSize.z - 1, dtl.z + 1), 0);
 
-	outputPressure[dtid] = p / jacobiBeta;
+	float L = pressure.Load(idxL);
+	float R = pressure.Load(idxR);
+	float B = pressure.Load(idxB);
+	float T = pressure.Load(idxT);
+	float D = pressure.Load(idxD);
+	float U = pressure.Load(idxU);
+
+	float C = pressure.Load(dtl);
+
+	if (wall.Load(idxL).w > 0.1) L = C;
+	if (wall.Load(idxR).w > 0.1) R = C;
+	if (wall.Load(idxB).w > 0.1) B = C;
+	if (wall.Load(idxT).w > 0.1) T = C;
+	if (wall.Load(idxD).w > 0.1) D = C;
+	if (wall.Load(idxU).w > 0.1) U = C;
+
+
+
+	outputPressure[dtid] = (L + R + B + T + U + D + jacobiAlpha*divergence.Load(dtl).x) / jacobiBeta;
 }
 
-[numthreads(1, 1, 1)]
+[numthreads(128, 1, 1)]
 void csProject( uint3 dtid : SV_DispatchThreadID)
 {
 	uint4 dtl = uint4(dtid, 0);
-	float3 gradp;
-	dtl.x -= 1;
-	gradp.x = -pressure.Load(dtl);
-	dtl.x += 2;
-	gradp.x += pressure.Load(dtl);
-	dtl.xy += uint2(-1,-1);
-	gradp.y = -pressure.Load(dtl);
-	dtl.y += 2;
-	gradp.y += pressure.Load(dtl);
-	dtl.yz += uint2(-1,-1);
-	gradp.z = -pressure.Load(dtl);
-	dtl.z += 2;
-	gradp.z += pressure.Load(dtl);
-	dtl.z -= 1;
+	uint4 idxL = uint4(max(0, dtl.x - 1), dtl.y, dtl.z, 0);
+	uint4 idxR = uint4(min(gridSize.x - 1, dtl.x + 1), dtl.y, dtl.z, 0);
+	uint4 idxB = uint4(dtl.x, max(0, dtl.y - 1), dtl.z, 0);
+	uint4 idxT = uint4(dtl.x, min(gridSize.y - 1, dtl.y + 1), dtl.z, 0);
+	uint4 idxD = uint4(dtl.x, dtl.y, max(0, dtl.z - 1), 0);
+	uint4 idxU = uint4(dtl.x, dtl.y, min(gridSize.z - 1, dtl.z + 1), 0);
 
-	outputVelocity[dtid] = velocity.Load(dtl) - gradp;
+	float L = pressure.Load(idxL);
+	float R = pressure.Load(idxR);
+	float B = pressure.Load(idxB);
+	float T = pressure.Load(idxT);
+	float D = pressure.Load(idxD);
+	float U = pressure.Load(idxU);
+
+	float C = pressure.Load(dtl);
+	float3 mask = float3(1, 1, 1);
+
+	if (wall.Load(idxL).w > 0.1) {
+		L = C;
+		mask.x = -1;
+	}
+	if (wall.Load(idxR).w > 0.1) {
+		R = C;
+		mask.x = -1;
+	}
+	if (wall.Load(idxB).w > 0.1) {
+		B = C;
+		mask.y = -1;
+	}
+	if (wall.Load(idxT).w > 0.1) {
+		T = C;
+		mask.y = -1;
+	}
+	if (wall.Load(idxD).w > 0.1) {
+		D = C;
+		mask.z = -1;
+	}
+	if (wall.Load(idxU).w > 0.1) {
+		U = C;
+		mask.z = -1;
+	}
+
+	outputVelocity[dtid] = (velocity.Load(dtl) - float3(R-L,T-B,U-D)*0.5f)*mask;
+	if (length(density.Load(dtl)) < 0.00001f){
+		outputDensity[dtid] = pressure.Load(dtl);
+	}
+	else {
+		outputDensity[dtid] = density.Load(dtl) + density.Load(dtl) * pressure.Load(dtl);
+	}
 }
 
 float4x4 orientProjMatrixInverse;
@@ -214,6 +318,14 @@ technique11 gridFluid
 	pass bouyancy
 	{
 		SetComputeShader(CompileShader(cs_5_0, csBouyancy()));
+	}
+	pass wall
+	{
+		SetComputeShader(CompileShader(cs_5_0, csWall()));
+	}
+	pass velocyfield
+	{
+		SetComputeShader(CompileShader(cs_5_0, csVelocyField()));
 	}
 	pass divergence
 	{

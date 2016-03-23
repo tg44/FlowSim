@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SharpDX.Direct3D11;
+using System.Drawing;
+using System.IO;
 
 namespace fluid.D3DrawModelsSources
 {
@@ -24,8 +26,23 @@ namespace fluid.D3DrawModelsSources
                 return false;
             }
         }
+        public bool Initialize(Device device, Image image)
+        {
+            try
+            {
+                MemoryStream ms = new MemoryStream();
+                image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
 
-        public void Shutdown()
+                TextureResource = ShaderResourceView.FromMemory(device, ms.ToArray());
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public void Dispose()
         {
             // Release the texture resource.
             if (TextureResource != null)

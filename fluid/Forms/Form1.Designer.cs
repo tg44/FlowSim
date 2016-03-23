@@ -44,6 +44,14 @@
             this.Sensitivity = new fluid.SelectionRangeSliderWrapper();
             this.HeatMap = new fluid.SelectionRangeSliderWrapper();
             this.d3DPanel1 = new fluid.D3DPanel();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.button3 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.button1 = new System.Windows.Forms.Button();
+            this.panel1.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // startButton
@@ -88,9 +96,9 @@
             // 
             // cbuttonUp
             // 
-            this.cbuttonUp.Location = new System.Drawing.Point(486, 159);
+            this.cbuttonUp.Location = new System.Drawing.Point(46, 16);
             this.cbuttonUp.Name = "cbuttonUp";
-            this.cbuttonUp.Size = new System.Drawing.Size(29, 29);
+            this.cbuttonUp.Size = new System.Drawing.Size(30, 30);
             this.cbuttonUp.TabIndex = 5;
             this.cbuttonUp.Text = "↑";
             this.cbuttonUp.UseVisualStyleBackColor = true;
@@ -98,9 +106,9 @@
             // 
             // cbuttonDown
             // 
-            this.cbuttonDown.Location = new System.Drawing.Point(486, 198);
+            this.cbuttonDown.Location = new System.Drawing.Point(46, 55);
             this.cbuttonDown.Name = "cbuttonDown";
-            this.cbuttonDown.Size = new System.Drawing.Size(29, 29);
+            this.cbuttonDown.Size = new System.Drawing.Size(30, 30);
             this.cbuttonDown.TabIndex = 6;
             this.cbuttonDown.Text = "↓";
             this.cbuttonDown.UseVisualStyleBackColor = true;
@@ -108,9 +116,9 @@
             // 
             // cbuttonLeft
             // 
-            this.cbuttonLeft.Location = new System.Drawing.Point(451, 180);
+            this.cbuttonLeft.Location = new System.Drawing.Point(11, 37);
             this.cbuttonLeft.Name = "cbuttonLeft";
-            this.cbuttonLeft.Size = new System.Drawing.Size(29, 29);
+            this.cbuttonLeft.Size = new System.Drawing.Size(30, 30);
             this.cbuttonLeft.TabIndex = 7;
             this.cbuttonLeft.Text = " ←";
             this.cbuttonLeft.UseVisualStyleBackColor = true;
@@ -118,9 +126,9 @@
             // 
             // cbuttonRight
             // 
-            this.cbuttonRight.Location = new System.Drawing.Point(521, 180);
+            this.cbuttonRight.Location = new System.Drawing.Point(81, 37);
             this.cbuttonRight.Name = "cbuttonRight";
-            this.cbuttonRight.Size = new System.Drawing.Size(29, 29);
+            this.cbuttonRight.Size = new System.Drawing.Size(30, 30);
             this.cbuttonRight.TabIndex = 8;
             this.cbuttonRight.Text = "→";
             this.cbuttonRight.UseVisualStyleBackColor = true;
@@ -128,7 +136,7 @@
             // 
             // cbuttonZoomIn
             // 
-            this.cbuttonZoomIn.Location = new System.Drawing.Point(579, 159);
+            this.cbuttonZoomIn.Location = new System.Drawing.Point(139, 16);
             this.cbuttonZoomIn.Name = "cbuttonZoomIn";
             this.cbuttonZoomIn.Size = new System.Drawing.Size(29, 29);
             this.cbuttonZoomIn.TabIndex = 9;
@@ -138,7 +146,7 @@
             // 
             // cbuttonZoomOut
             // 
-            this.cbuttonZoomOut.Location = new System.Drawing.Point(579, 198);
+            this.cbuttonZoomOut.Location = new System.Drawing.Point(139, 55);
             this.cbuttonZoomOut.Name = "cbuttonZoomOut";
             this.cbuttonZoomOut.Size = new System.Drawing.Size(29, 29);
             this.cbuttonZoomOut.TabIndex = 10;
@@ -193,25 +201,85 @@
             this.d3DPanel1.Heatmap = new System.Drawing.SizeF(0F, 1F);
             this.d3DPanel1.Location = new System.Drawing.Point(45, 62);
             this.d3DPanel1.Name = "d3DPanel1";
+            this.d3DPanel1.PhisicStep = true;
             this.d3DPanel1.Sensitivitymap = new System.Drawing.SizeF(0F, 1F);
             this.d3DPanel1.Size = new System.Drawing.Size(400, 400);
             this.d3DPanel1.TabIndex = 0;
             this.d3DPanel1.Text = "d3DPanel1";
+            // 
+            // panel1
+            // 
+            this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.cbuttonUp);
+            this.panel1.Controls.Add(this.cbuttonDown);
+            this.panel1.Controls.Add(this.cbuttonLeft);
+            this.panel1.Controls.Add(this.cbuttonRight);
+            this.panel1.Controls.Add(this.cbuttonZoomOut);
+            this.panel1.Controls.Add(this.cbuttonZoomIn);
+            this.panel1.Location = new System.Drawing.Point(454, 154);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(183, 97);
+            this.panel1.TabIndex = 14;
+            // 
+            // panel2
+            // 
+            this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel2.Controls.Add(this.button3);
+            this.panel2.Controls.Add(this.button2);
+            this.panel2.Controls.Add(this.textBox1);
+            this.panel2.Controls.Add(this.button1);
+            this.panel2.Location = new System.Drawing.Point(643, 138);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(200, 113);
+            this.panel2.TabIndex = 15;
+            // 
+            // button3
+            // 
+            this.button3.Location = new System.Drawing.Point(77, 81);
+            this.button3.Name = "button3";
+            this.button3.Size = new System.Drawing.Size(118, 23);
+            this.button3.TabIndex = 3;
+            this.button3.Text = "stop";
+            this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.stopPhisics);
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(77, 51);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(118, 23);
+            this.button2.TabIndex = 2;
+            this.button2.Text = "set sample rate";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.startPhisics);
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(4, 54);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(66, 20);
+            this.textBox1.TabIndex = 1;
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(77, 7);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(120, 23);
+            this.button1.TabIndex = 0;
+            this.button1.Text = "phisics 1step";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.oneStep);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(884, 561);
+            this.Controls.Add(this.panel2);
+            this.Controls.Add(this.panel1);
             this.Controls.Add(this.Sensitivity);
             this.Controls.Add(this.HeatMap);
             this.Controls.Add(this.label4);
-            this.Controls.Add(this.cbuttonZoomOut);
-            this.Controls.Add(this.cbuttonZoomIn);
-            this.Controls.Add(this.cbuttonRight);
-            this.Controls.Add(this.cbuttonLeft);
-            this.Controls.Add(this.cbuttonDown);
-            this.Controls.Add(this.cbuttonUp);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -219,6 +287,9 @@
             this.Controls.Add(this.d3DPanel1);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.panel1.ResumeLayout(false);
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -241,5 +312,11 @@
         private System.Windows.Forms.Timer labelTimer;
         private SelectionRangeSliderWrapper HeatMap;
         private SelectionRangeSliderWrapper Sensitivity;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Button button1;
     }
 }
