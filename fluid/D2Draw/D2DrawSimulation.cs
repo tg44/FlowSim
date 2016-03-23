@@ -1,7 +1,7 @@
 ﻿using fluid.D2Draw.ShaderLoaders;
-using fluid.D3DrawModelsSources;
-using fluid.D3DrawModelsSources.DrawTools;
-using fluid.D3DrawModelsSources.ShaderLoaders;
+using fluid.D3Draw;
+using fluid.CoreDraw;
+using fluid.D3Draw.ShaderLoaders;
 using fluid.Forms;
 using fluid.HMDP;
 using SharpDX;
@@ -13,14 +13,8 @@ using System.Drawing;
 
 namespace fluid.D2Draw
 {
-    class D2DrawSimulation : D3Drawer
+    class D2DrawSimulation : DrawerBase
     {
-        private Camera _camera { get; set; }
-
-        public Camera Camera { get { return _camera; } set { _camera = value; } }
-
-        private DX11 DX11 { get; set; }
-
         private Model Wall { get; set; }
 
         private TextureShader TextureShader { get; set; }
@@ -33,9 +27,6 @@ namespace fluid.D2Draw
 
         private DepthStencilView tmpDSV;
 
-        //private UnorderedAccessView mergedTextUav;
-
-        private bool physics = false;
 
         #region texturereferences and stuff
         Texture2D tmpDepthText;
@@ -52,24 +43,7 @@ namespace fluid.D2Draw
         #region interface not implemented
 
 
-
-        public CPU CPU
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public FPS FPS
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public SizeF Heatmap
+        override public SizeF Heatmap
         {
             get
             {
@@ -86,33 +60,9 @@ namespace fluid.D2Draw
             }
         }
 
-        public bool PhisicsStep
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
 
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
 
-        public int PhisicsStepSize
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public SizeF Sensitivitymap
+        override public SizeF Sensitivitymap
         {
             get
             {
@@ -129,12 +79,12 @@ namespace fluid.D2Draw
             }
         }
 
-        public MovableModel addFileLoader(HMDPLoader loader)
+        override public IMovableModel addFileLoader(HMDPLoader loader)
         {
             throw new NotImplementedException();
         }
 
-        public void addVars(RenderTargetView renderView, SwapChain swapChain, DeviceContext deviceContext, SharpDX.Direct3D11.Device device, int Width, int Height, IntPtr Handler)
+        override public void addVars(RenderTargetView renderView, SwapChain swapChain, DeviceContext deviceContext, SharpDX.Direct3D11.Device device, int Width, int Height, IntPtr Handler)
         {
             throw new NotImplementedException();
         }
@@ -148,7 +98,7 @@ namespace fluid.D2Draw
             }
         }
 
-        public void Dispose()
+        override public void Dispose()
         {
             foreach (var item in RTVmap)
             {
@@ -179,9 +129,9 @@ namespace fluid.D2Draw
             return Physics2DShader.RenderPhysics(DX11.DeviceContext);
             //return outsrv;
         }
-        public void Frame()
+        override public void Frame()
         {
-            if (physics)
+            if (PhisicsStarted)
             {
                 outsrv = PhysicsStep();
                 DX11.ResetDeviceContext();
@@ -225,11 +175,9 @@ namespace fluid.D2Draw
             DX11.EndScene();
         }
 
-        public bool init(DX11 DX11, SizeF Heatmap, SizeF Sensitivitymap)
+        override public bool init(DX11 DX11, SizeF Heatmap, SizeF Sensitivitymap)
         {
-            if (this.DX11 != null) return false;
-
-            this.DX11 = DX11;
+            if (!initBase(DX11, Heatmap, Sensitivitymap)) return false;
 
             _camera = new Camera();
 
@@ -335,17 +283,5 @@ namespace fluid.D2Draw
 
         }
 
-        public bool PhisicsStarted
-        {
-            get
-            {
-                return physics;
-            }
-
-            set
-            {
-                physics = value;
-            }
-        }
     }
 }

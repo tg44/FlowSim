@@ -1,22 +1,6 @@
 ﻿A jelenlegi interface a view és a motor közt eléggé gyengusz, nehezen paraméterezhető... :(
-A Shaders mappában túl sok shit van...
-a hmdp szép
-a formsot lehetne bontani
-a d3draw-ot kellene bontani
-a d2 relatíve jó
 d3 d2 naming refaktor valószínű kellene h cleanebb legyen
 a shadert betöltő cuccokat egyforma fgvsorrendre kellene hozni, ahol lehet szét kellene vágni
-
-
-
-
-
-
-
-
-
-
-
 
 
 

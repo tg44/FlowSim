@@ -101,7 +101,7 @@ namespace fluid
         private void selectionChanged(object sender, EventArgs e)
         {
             if (listBox1.SelectedIndex > -1)
-                modelMover1.Model = (MovableModel)listBox1.Items[listBox1.SelectedIndex];
+                modelMover1.Model = (IMovableModel)listBox1.Items[listBox1.SelectedIndex];
         }
 
         private void button3_Click(object sender, EventArgs e)

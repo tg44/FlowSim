@@ -1,5 +1,5 @@
-﻿using fluid.D3DrawModelsSources;
-using fluid.D3DrawModelsSources.ShaderLoaders;
+﻿using fluid.CoreDraw;
+using fluid.D3Draw.ShaderLoaders;
 using SharpDX;
 using SharpDX.D3DCompiler;
 using SharpDX.Direct3D11;

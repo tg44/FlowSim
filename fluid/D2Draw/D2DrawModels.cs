@@ -1,23 +1,15 @@
-﻿using fluid.D2Draw;
-using fluid.D3DrawModelsSources;
-using fluid.D3DrawModelsSources.DrawTools;
-using fluid.D3DrawModelsSources.ShaderLoaders;
+﻿using fluid.CoreDraw;
+using fluid.D3Draw.ShaderLoaders;
 using fluid.Forms;
 using SharpDX;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Drawing;
 
 namespace fluid.D2Draw
 {
-    class D2DrawModels : D3Drawer
+    class D2DrawModels : DrawerBase
     {
-        private Camera _camera { get; set; }
-
-        public Camera Camera { get { return _camera; } set { } }
-        private DX11 DX11 { get; set; }
-
         private Model Wall { get; set; }
 
         private TextureShader TextureShader { get; set; }
@@ -28,8 +20,33 @@ namespace fluid.D2Draw
 
         public IList<Drawable2DHMDP> Models { get { return models.AsReadOnly(); } private set { } }
 
+        public override SizeF Heatmap
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
 
-        public void Frame()
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public override SizeF Sensitivitymap
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        override public void Frame()
         {
             DX11.BeginScene(0.5f, 0.5f, 0.5f, 1.0f);
 
@@ -59,14 +76,12 @@ namespace fluid.D2Draw
 
         }
 
-        public void addVars(SharpDX.Direct3D11.RenderTargetView renderView, SharpDX.DXGI.SwapChain swapChain, SharpDX.Direct3D11.DeviceContext deviceContext, SharpDX.Direct3D11.Device device, int Width, int Height, IntPtr Handler)
-        { }
+        override public void addVars(SharpDX.Direct3D11.RenderTargetView renderView, SharpDX.DXGI.SwapChain swapChain, SharpDX.Direct3D11.DeviceContext deviceContext, SharpDX.Direct3D11.Device device, int Width, int Height, IntPtr Handler)
+        { throw new NotImplementedException(); }
 
-        public bool init(D3DrawModelsSources.DX11 DX11, System.Drawing.SizeF Heatmap, System.Drawing.SizeF Sensitivitymap)
+        override public bool init(DX11 DX11, System.Drawing.SizeF Heatmap, System.Drawing.SizeF Sensitivitymap)
         {
-            if (this.DX11 != null) return false;
-
-            this.DX11 = DX11;
+            if (!initBase(DX11, Heatmap, Sensitivitymap)) return false;
 
             _camera = new Camera();
 
@@ -87,7 +102,7 @@ namespace fluid.D2Draw
             return true;
         }
 
-        public MovableModel addFileLoader(HMDP.HMDPLoader loader)
+        override public IMovableModel addFileLoader(HMDP.HMDPLoader loader)
         {
             z += 0.0001f;
             Drawable2DHMDP model = new Drawable2DHMDP();
@@ -104,80 +119,12 @@ namespace fluid.D2Draw
             return model;
         }
 
-        public void Dispose()
+        override public void Dispose()
         {
             Wall.Dispose();
             Wall = null;
         }
 
-        public FPS FPS
-        {
-            get { throw new NotImplementedException(); }
-        }
 
-        public CPU CPU
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public System.Drawing.SizeF Heatmap
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public System.Drawing.SizeF Sensitivitymap
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public bool PhisicsStep
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public bool PhisicsStarted
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public int PhisicsStepSize
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
     }
 }

@@ -1,4 +1,4 @@
-﻿using fluid.D3DrawModelsSources;
+﻿using fluid.D3Draw;
 using fluid.Forms;
 using fluid.HMDP;
 using SharpDX.Direct3D11;
@@ -7,12 +7,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SharpDX;
-using fluid.D3DrawModelsSources.DrawTools;
-using fluid.D3DrawModelsSources.ShaderLoaders;
+using fluid.CoreDraw;
+using fluid.D3Draw.ShaderLoaders;
 
 namespace fluid.D2Draw
 {
-    class Drawable2DHMDP : Model, MovableModel
+    class Drawable2DHMDP : Model, IMovableModel
     {
         public HMDP2D Hmdp2D { get; set; }
 
