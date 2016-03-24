@@ -1,6 +1,7 @@
 ﻿using fluid.CoreDraw;
 using fluid.D3Draw.ShaderLoaders;
 using fluid.Forms;
+using fluid.HMDP;
 using SharpDX;
 using System;
 using System.Collections.Generic;
@@ -67,7 +68,8 @@ namespace fluid.D2Draw
 
             foreach (var model in models)
             {
-                model.Render(DX11.DeviceContext, DX11.WorldMatrix, viewMatrix, projectionMatrix, TextureShader);
+                model.switchTexture(HmdpRenderType);
+                model.Render(DX11.DeviceContext, DX11.WorldMatrix, viewMatrix, projectionMatrix, TextureShader, HMDPTypeHelper.isRotateable(HmdpRenderType));
 
             }
 

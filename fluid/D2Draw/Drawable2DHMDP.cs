@@ -69,12 +69,12 @@ namespace fluid.D2Draw
 
         //load all texture if not loaded
         //switch the actual
-        public void switchTexture(string textureType)
+        public void switchTexture(HMDPTypeEnum hmdpType)
         {
-            if (textureType.Equals("icon")) Texture = iconTex;
-            if (textureType.Equals("heat")) Texture = heatTex;
-            if (textureType.Equals("solid")) Texture = slidTex;
-            if (textureType.Equals("through")) Texture = throughTex;
+            if (hmdpType.Equals(HMDPTypeEnum.icon)) Texture = iconTex;
+            if (hmdpType.Equals(HMDPTypeEnum.heat)) Texture = heatTex;
+            if (hmdpType.Equals(HMDPTypeEnum.solid)) Texture = slidTex;
+            if (hmdpType.Equals(HMDPTypeEnum.throughtput)) Texture = throughTex;
         }
 
         internal void Render(DeviceContext deviceContext, Matrix worldMatrix, Matrix viewMatrix, Matrix projectionMatrix, TextureShader textureShader)
@@ -114,7 +114,7 @@ namespace fluid.D2Draw
 
         public override void Dispose()
         {
-            switchTexture("icon");
+            switchTexture(HMDPTypeEnum.icon);
 
             if (heatTex != null)
             {

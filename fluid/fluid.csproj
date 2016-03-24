@@ -152,6 +152,7 @@
     <Compile Include="HMDP\HMDP2D.cs" />
     <Compile Include="HMDP\HMDPInformation.cs" />
     <Compile Include="HMDP\HMDPLoader.cs" />
+    <Compile Include="HMDP\HMDPTypeEnum.cs" />
     <Compile Include="HMDP\Preset\PresetItem.cs" />
     <Compile Include="HMDP\Preset\PresetLoader.cs" />
     <Compile Include="Program.cs" />

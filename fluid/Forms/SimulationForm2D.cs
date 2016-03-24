@@ -18,6 +18,12 @@ namespace fluid
         public SimulationForm2D()
         {
             InitializeComponent();
+
+            foreach (HMDPTypeEnum item in Enum.GetValues(typeof(HMDPTypeEnum)))
+            {
+                comboBox1.Items.Add(item);
+            }
+
         }
 
         private void sartRender(object sender, EventArgs e)
@@ -141,5 +147,9 @@ namespace fluid
             d3DPanel1.Sensitivitymap = new SizeF(selectionRangeSliderWrapper2.SelectedMin, selectionRangeSliderWrapper2.SelectedMax);
         }
 
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            d3DPanel1.drawer.HmdpRenderType = (HMDPTypeEnum)comboBox1.SelectedItem;
+        }
     }
 }

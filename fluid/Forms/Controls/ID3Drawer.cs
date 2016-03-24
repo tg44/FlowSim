@@ -8,6 +8,7 @@ using fluid.D3Draw;
 using System.Drawing;
 using fluid.Forms;
 using fluid.CoreDraw;
+using fluid.HMDP;
 
 namespace fluid
 {
@@ -31,6 +32,8 @@ namespace fluid
         bool PhisicsStep { get; set; }
         bool PhisicsStarted { get; set; }
         int PhisicsStepSize { get; set; }
+
+        HMDPTypeEnum HmdpRenderType { get; set; }
 
         IMovableModel addFileLoader(HMDP.HMDPLoader loader);
 

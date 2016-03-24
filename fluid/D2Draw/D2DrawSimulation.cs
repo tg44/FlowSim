@@ -23,7 +23,7 @@ namespace fluid.D2Draw
 
         private List<Drawable2DHMDP> models = new List<Drawable2DHMDP>();
 
-        private Dictionary<string, RenderTargetView> RTVmap = new Dictionary<string, RenderTargetView>();
+        private Dictionary<HMDPTypeEnum, RenderTargetView> RTVmap = new Dictionary<HMDPTypeEnum, RenderTargetView>();
 
         private DepthStencilView tmpDSV;
 
@@ -37,7 +37,7 @@ namespace fluid.D2Draw
         ShaderResourceView outsrv;
         #endregion
 
-        private Dictionary<string, ShaderResourceView> SRVmap = new Dictionary<string, ShaderResourceView>();
+        private Dictionary<HMDPTypeEnum, ShaderResourceView> SRVmap = new Dictionary<HMDPTypeEnum, ShaderResourceView>();
 
 
         #region interface not implemented
@@ -159,8 +159,8 @@ namespace fluid.D2Draw
 
             foreach (var model in models)
             {
-                model.switchTexture("icon");
-                model.Render(DX11.DeviceContext, DX11.WorldMatrix, viewMatrix, projectionMatrix, TextureShader);
+                model.switchTexture(HmdpRenderType);
+                model.Render(DX11.DeviceContext, DX11.WorldMatrix, viewMatrix, projectionMatrix, TextureShader, HMDPTypeHelper.isRotateable(HmdpRenderType));
 
             }
 
@@ -219,19 +219,19 @@ namespace fluid.D2Draw
             solidRTV = new RenderTargetView(DX11.Device, solidText);
             throughRTV = new RenderTargetView(DX11.Device, throughText);
 
-            RTVmap["heat"] = heatRTV;
-            RTVmap["solid"] = solidRTV;
-            RTVmap["through"] = throughRTV;
+            RTVmap[HMDPTypeEnum.heat] = heatRTV;
+            RTVmap[HMDPTypeEnum.solid] = solidRTV;
+            RTVmap[HMDPTypeEnum.throughtput] = throughRTV;
 
             tmpDepthText = new Texture2D(DX11.Device, DX11.DepthStencilBufferInObj.Description);
             tmpDSV = new DepthStencilView(DX11.Device, tmpDepthText, DX11.DepthStencilViewInObj.Description);
             //mergedTextUav = new UnorderedAccessView(DX11.DeviceContext.Device, mergedText);
 
-            SRVmap["heat"] = new ShaderResourceView(DX11.DeviceContext.Device, heatText);
-            SRVmap["solid"] = new ShaderResourceView(DX11.DeviceContext.Device, solidText);
-            SRVmap["through"] = new ShaderResourceView(DX11.DeviceContext.Device, throughText);
-            SRVmap["merged"] = new ShaderResourceView(DX11.DeviceContext.Device, mergedText);
-            outsrv = SRVmap["merged"];
+            SRVmap[HMDPTypeEnum.heat] = new ShaderResourceView(DX11.DeviceContext.Device, heatText);
+            SRVmap[HMDPTypeEnum.solid] = new ShaderResourceView(DX11.DeviceContext.Device, solidText);
+            SRVmap[HMDPTypeEnum.throughtput] = new ShaderResourceView(DX11.DeviceContext.Device, throughText);
+            SRVmap[HMDPTypeEnum.merged] = new ShaderResourceView(DX11.DeviceContext.Device, mergedText);
+            outsrv = SRVmap[HMDPTypeEnum.merged];
             #endregion
 
             //kell a 3 textúra
@@ -272,7 +272,7 @@ namespace fluid.D2Draw
                 foreach (var model in models)
                 {
                     model.switchTexture(item.Key);
-                    model.Render(DX11.DeviceContext, worldMatrix, viewMatrix, projectionMatrix, TextureShader, true);
+                    model.Render(DX11.DeviceContext, worldMatrix, viewMatrix, projectionMatrix, TextureShader, HMDPTypeHelper.isRotateable(item.Key));
                     //DX11.DeviceContext.ClearDepthStencilView(tmpDSV, DepthStencilClearFlags.Depth, 1, 0);
                 }
             }
