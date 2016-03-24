@@ -28,16 +28,27 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.button3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.cpuStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.fpsStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.vidMemoryStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.vidTypeStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusRefresher = new System.Windows.Forms.Timer(this.components);
             this.selectionRangeSliderWrapper2 = new fluid.SelectionRangeSliderWrapper();
             this.selectionRangeSliderWrapper1 = new fluid.SelectionRangeSliderWrapper();
             this.modelMover1 = new fluid.Forms.ModelMover();
             this.d3DPanel1 = new fluid.D3DPanel();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1
@@ -100,6 +111,51 @@
             this.comboBox1.TabIndex = 9;
             this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
+            // statusStrip1
+            // 
+            this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.cpuStatusLabel,
+            this.toolStripStatusLabel1,
+            this.fpsStatusLabel,
+            this.toolStripStatusLabel2,
+            this.vidMemoryStatusLabel,
+            this.toolStripStatusLabel3,
+            this.vidTypeStatusLabel});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 420);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(863, 22);
+            this.statusStrip1.TabIndex = 10;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
+            // cpuStatusLabel
+            // 
+            this.cpuStatusLabel.Name = "cpuStatusLabel";
+            this.cpuStatusLabel.Size = new System.Drawing.Size(30, 17);
+            this.cpuStatusLabel.Text = "CPU";
+            // 
+            // fpsStatusLabel
+            // 
+            this.fpsStatusLabel.Name = "fpsStatusLabel";
+            this.fpsStatusLabel.Size = new System.Drawing.Size(26, 17);
+            this.fpsStatusLabel.Text = "FPS";
+            // 
+            // vidMemoryStatusLabel
+            // 
+            this.vidMemoryStatusLabel.Name = "vidMemoryStatusLabel";
+            this.vidMemoryStatusLabel.Size = new System.Drawing.Size(68, 17);
+            this.vidMemoryStatusLabel.Text = "vidMemory";
+            // 
+            // vidTypeStatusLabel
+            // 
+            this.vidTypeStatusLabel.Name = "vidTypeStatusLabel";
+            this.vidTypeStatusLabel.Size = new System.Drawing.Size(48, 17);
+            this.vidTypeStatusLabel.Text = "vidType";
+            // 
+            // statusRefresher
+            // 
+            this.statusRefresher.Interval = 1000;
+            this.statusRefresher.Tick += new System.EventHandler(this.statusRefresher_Tick);
+            // 
             // selectionRangeSliderWrapper2
             // 
             this.selectionRangeSliderWrapper2.Location = new System.Drawing.Point(588, 261);
@@ -148,11 +204,30 @@
             this.d3DPanel1.TabIndex = 0;
             this.d3DPanel1.Text = "d3DPanel1";
             // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(118, 17);
+            this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
+            // 
+            // toolStripStatusLabel2
+            // 
+            this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(118, 17);
+            this.toolStripStatusLabel2.Text = "toolStripStatusLabel2";
+            // 
+            // toolStripStatusLabel3
+            // 
+            this.toolStripStatusLabel3.Name = "toolStripStatusLabel3";
+            this.toolStripStatusLabel3.Size = new System.Drawing.Size(118, 17);
+            this.toolStripStatusLabel3.Text = "toolStripStatusLabel3";
+            // 
             // SimulationForm2D
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(863, 418);
+            this.ClientSize = new System.Drawing.Size(863, 442);
+            this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.selectionRangeSliderWrapper2);
             this.Controls.Add(this.selectionRangeSliderWrapper1);
@@ -165,7 +240,10 @@
             this.Controls.Add(this.d3DPanel1);
             this.Name = "SimulationForm2D";
             this.Text = "SimulationForm2D";
+            this.statusStrip1.ResumeLayout(false);
+            this.statusStrip1.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -181,5 +259,14 @@
         private SelectionRangeSliderWrapper selectionRangeSliderWrapper1;
         private SelectionRangeSliderWrapper selectionRangeSliderWrapper2;
         private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.StatusStrip statusStrip1;
+        private System.Windows.Forms.ToolStripStatusLabel cpuStatusLabel;
+        private System.Windows.Forms.ToolStripStatusLabel fpsStatusLabel;
+        private System.Windows.Forms.ToolStripStatusLabel vidMemoryStatusLabel;
+        private System.Windows.Forms.ToolStripStatusLabel vidTypeStatusLabel;
+        private System.Windows.Forms.Timer statusRefresher;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
     }
 }

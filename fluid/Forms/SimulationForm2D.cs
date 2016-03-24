@@ -24,6 +24,23 @@ namespace fluid
                 comboBox1.Items.Add(item);
             }
 
+            vidTypeStatusLabel.Text = "Video Card Desc:    ";
+            vidMemoryStatusLabel.Text = "Video Card Memory:  ";
+            fpsStatusLabel.Text = "Frames per sec:     ";
+            cpuStatusLabel.Text = "CPU usege:          ";
+
+            toolStripStatusLabel1.Text = "  |  ";
+            toolStripStatusLabel2.Text = "  |  ";
+            toolStripStatusLabel3.Text = "  |  ";
+
+        }
+
+        private void refreshLabels()
+        {
+            vidTypeStatusLabel.Text = "Video Card Desc:  " + d3DPanel1.GetCardDesc();
+            vidMemoryStatusLabel.Text = "Video Card Memory:  " + d3DPanel1.GetCardMem();
+            fpsStatusLabel.Text = "Frames per sec:  " + d3DPanel1.FPS().ToString();
+            cpuStatusLabel.Text = "CPU usege:  " + d3DPanel1.CPU().ToString("F2") + "%";
         }
 
         private void sartRender(object sender, EventArgs e)
@@ -36,6 +53,8 @@ namespace fluid
 
 
             d3DPanel1.Initialize();
+
+            statusRefresher.Enabled = true;
 
             d3DPanel1.startRendering();
 
@@ -150,6 +169,11 @@ namespace fluid
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             d3DPanel1.drawer.HmdpRenderType = (HMDPTypeEnum)comboBox1.SelectedItem;
+        }
+
+        private void statusRefresher_Tick(object sender, EventArgs e)
+        {
+            refreshLabels();
         }
     }
 }

@@ -131,6 +131,8 @@ namespace fluid.D2Draw
         }
         override public void Frame()
         {
+            _fps.Frame();
+            _cpu.Frame();
             if (PhisicsStarted)
             {
                 outsrv = PhysicsStep();

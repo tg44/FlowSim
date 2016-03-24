@@ -49,6 +49,10 @@ namespace fluid.D2Draw
 
         override public void Frame()
         {
+
+            _fps.Frame();
+            _cpu.Frame();
+
             DX11.BeginScene(0.5f, 0.5f, 0.5f, 1.0f);
 
             _camera.Render2D();

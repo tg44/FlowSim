@@ -39,7 +39,7 @@ namespace fluid
             label1.Text = "Video Card Desc:    " + d3DPanel1.GetCardDesc();
             label2.Text = "Video Card Memory:  " + d3DPanel1.GetCardMem();
             label3.Text = "Frames per sec:     " + d3DPanel1.FPS().ToString();
-            label4.Text = "CPU usege:          " + d3DPanel1.CPU().ToString();
+            label4.Text = "CPU usege:          " + d3DPanel1.CPU().ToString("F2") + "%";
         }
 
         private void controlUp(object sender, EventArgs e)
