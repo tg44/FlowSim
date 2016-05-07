@@ -25,6 +25,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -106,6 +107,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CoreDraw\DrawerBase.cs" />
+    <Compile Include="CoreDraw\RenderTextureEnum.cs" />
+    <Compile Include="CoreDraw\TextureHelper.cs" />
+    <Compile Include="CoreDraw\TextureWithNextHelper.cs" />
     <Compile Include="D2Draw\D2DrawModels.cs" />
     <Compile Include="D2Draw\D2DrawSimulation.cs" />
     <Compile Include="D2Draw\Drawable2DHMDP.cs" />

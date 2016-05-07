@@ -1,14 +1,10 @@
-﻿using fluid.D2Draw;
+﻿using fluid.CoreDraw;
+using fluid.D2Draw;
 using fluid.Forms;
 using fluid.HMDP;
 using fluid.HMDP.Preset;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace fluid
@@ -22,6 +18,11 @@ namespace fluid
             foreach (HMDPTypeEnum item in Enum.GetValues(typeof(HMDPTypeEnum)))
             {
                 comboBox1.Items.Add(item);
+            }
+
+            foreach (RenderTextureEnum item in Enum.GetValues(typeof(RenderTextureEnum)))
+            {
+                comboBox2.Items.Add(item);
             }
 
             vidTypeStatusLabel.Text = "Video Card Desc:    ";
@@ -174,6 +175,11 @@ namespace fluid
         private void statusRefresher_Tick(object sender, EventArgs e)
         {
             refreshLabels();
+        }
+
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            d3DPanel1.drawer.TextureRenderType = (RenderTextureEnum)comboBox2.SelectedItem;
         }
     }
 }

@@ -19,6 +19,8 @@ namespace fluid.CoreDraw
 
         public HMDPTypeEnum HmdpRenderType { get; set; }
 
+        public RenderTextureEnum TextureRenderType { get; set; }
+
         public Camera Camera { get { return _camera; } set { _camera = value; } }
         public FPS FPS { get { return _fps; } }
         public CPU CPU { get { return _cpu; } }

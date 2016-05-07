@@ -1,14 +1,10 @@
-﻿using SharpDX.Direct3D11;
+﻿using fluid.CoreDraw;
+using fluid.Forms;
+using fluid.HMDP;
+using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using fluid.D3Draw;
 using System.Drawing;
-using fluid.Forms;
-using fluid.CoreDraw;
-using fluid.HMDP;
 
 namespace fluid
 {
@@ -34,6 +30,7 @@ namespace fluid
         int PhisicsStepSize { get; set; }
 
         HMDPTypeEnum HmdpRenderType { get; set; }
+        RenderTextureEnum TextureRenderType { get; set; }
 
         IMovableModel addFileLoader(HMDP.HMDPLoader loader);
 

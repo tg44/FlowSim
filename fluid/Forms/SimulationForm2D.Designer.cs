@@ -37,23 +37,24 @@
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.cpuStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.fpsStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.vidMemoryStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
             this.vidTypeStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusRefresher = new System.Windows.Forms.Timer(this.components);
+            this.comboBox2 = new System.Windows.Forms.ComboBox();
             this.selectionRangeSliderWrapper2 = new fluid.SelectionRangeSliderWrapper();
             this.selectionRangeSliderWrapper1 = new fluid.SelectionRangeSliderWrapper();
             this.modelMover1 = new fluid.Forms.ModelMover();
             this.d3DPanel1 = new fluid.D3DPanel();
-            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(419, 13);
+            this.button1.Location = new System.Drawing.Point(549, 13);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(75, 23);
             this.button1.TabIndex = 1;
@@ -64,7 +65,7 @@
             // button2
             // 
             this.button2.Enabled = false;
-            this.button2.Location = new System.Drawing.Point(419, 43);
+            this.button2.Location = new System.Drawing.Point(549, 43);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 23);
             this.button2.TabIndex = 2;
@@ -75,7 +76,7 @@
             // listBox1
             // 
             this.listBox1.FormattingEnabled = true;
-            this.listBox1.Location = new System.Drawing.Point(419, 73);
+            this.listBox1.Location = new System.Drawing.Point(549, 73);
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(75, 108);
             this.listBox1.TabIndex = 3;
@@ -84,7 +85,7 @@
             // button3
             // 
             this.button3.Enabled = false;
-            this.button3.Location = new System.Drawing.Point(418, 213);
+            this.button3.Location = new System.Drawing.Point(548, 213);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(75, 23);
             this.button3.TabIndex = 5;
@@ -94,7 +95,7 @@
             // 
             // button4
             // 
-            this.button4.Location = new System.Drawing.Point(419, 187);
+            this.button4.Location = new System.Drawing.Point(549, 187);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(75, 23);
             this.button4.TabIndex = 6;
@@ -105,7 +106,7 @@
             // comboBox1
             // 
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(671, 43);
+            this.comboBox1.Location = new System.Drawing.Point(631, 43);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(161, 21);
             this.comboBox1.TabIndex = 9;
@@ -121,9 +122,9 @@
             this.vidMemoryStatusLabel,
             this.toolStripStatusLabel3,
             this.vidTypeStatusLabel});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 420);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 565);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(863, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(1039, 22);
             this.statusStrip1.TabIndex = 10;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -133,17 +134,35 @@
             this.cpuStatusLabel.Size = new System.Drawing.Size(30, 17);
             this.cpuStatusLabel.Text = "CPU";
             // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(118, 17);
+            this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
+            // 
             // fpsStatusLabel
             // 
             this.fpsStatusLabel.Name = "fpsStatusLabel";
             this.fpsStatusLabel.Size = new System.Drawing.Size(26, 17);
             this.fpsStatusLabel.Text = "FPS";
             // 
+            // toolStripStatusLabel2
+            // 
+            this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
+            this.toolStripStatusLabel2.Size = new System.Drawing.Size(118, 17);
+            this.toolStripStatusLabel2.Text = "toolStripStatusLabel2";
+            // 
             // vidMemoryStatusLabel
             // 
             this.vidMemoryStatusLabel.Name = "vidMemoryStatusLabel";
             this.vidMemoryStatusLabel.Size = new System.Drawing.Size(68, 17);
             this.vidMemoryStatusLabel.Text = "vidMemory";
+            // 
+            // toolStripStatusLabel3
+            // 
+            this.toolStripStatusLabel3.Name = "toolStripStatusLabel3";
+            this.toolStripStatusLabel3.Size = new System.Drawing.Size(118, 17);
+            this.toolStripStatusLabel3.Text = "toolStripStatusLabel3";
             // 
             // vidTypeStatusLabel
             // 
@@ -156,9 +175,18 @@
             this.statusRefresher.Interval = 1000;
             this.statusRefresher.Tick += new System.EventHandler(this.statusRefresher_Tick);
             // 
+            // comboBox2
+            // 
+            this.comboBox2.FormattingEnabled = true;
+            this.comboBox2.Location = new System.Drawing.Point(801, 43);
+            this.comboBox2.Name = "comboBox2";
+            this.comboBox2.Size = new System.Drawing.Size(161, 21);
+            this.comboBox2.TabIndex = 11;
+            this.comboBox2.SelectedIndexChanged += new System.EventHandler(this.comboBox2_SelectedIndexChanged);
+            // 
             // selectionRangeSliderWrapper2
             // 
-            this.selectionRangeSliderWrapper2.Location = new System.Drawing.Point(588, 261);
+            this.selectionRangeSliderWrapper2.Location = new System.Drawing.Point(718, 261);
             this.selectionRangeSliderWrapper2.Max = 1F;
             this.selectionRangeSliderWrapper2.Min = -1F;
             this.selectionRangeSliderWrapper2.Name = "selectionRangeSliderWrapper2";
@@ -171,7 +199,7 @@
             // 
             // selectionRangeSliderWrapper1
             // 
-            this.selectionRangeSliderWrapper1.Location = new System.Drawing.Point(588, 187);
+            this.selectionRangeSliderWrapper1.Location = new System.Drawing.Point(718, 187);
             this.selectionRangeSliderWrapper1.Max = 1F;
             this.selectionRangeSliderWrapper1.Min = -1F;
             this.selectionRangeSliderWrapper1.Name = "selectionRangeSliderWrapper1";
@@ -184,7 +212,7 @@
             // 
             // modelMover1
             // 
-            this.modelMover1.Location = new System.Drawing.Point(501, 73);
+            this.modelMover1.Location = new System.Drawing.Point(631, 73);
             this.modelMover1.Model = null;
             this.modelMover1.Name = "modelMover1";
             this.modelMover1.Size = new System.Drawing.Size(344, 78);
@@ -200,33 +228,16 @@
             this.d3DPanel1.PhisicsStepSize = 0;
             this.d3DPanel1.PhisicStep = true;
             this.d3DPanel1.Sensitivitymap = new System.Drawing.SizeF(0F, 1F);
-            this.d3DPanel1.Size = new System.Drawing.Size(400, 400);
+            this.d3DPanel1.Size = new System.Drawing.Size(512, 512);
             this.d3DPanel1.TabIndex = 0;
             this.d3DPanel1.Text = "d3DPanel1";
-            // 
-            // toolStripStatusLabel1
-            // 
-            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(118, 17);
-            this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
-            // 
-            // toolStripStatusLabel2
-            // 
-            this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(118, 17);
-            this.toolStripStatusLabel2.Text = "toolStripStatusLabel2";
-            // 
-            // toolStripStatusLabel3
-            // 
-            this.toolStripStatusLabel3.Name = "toolStripStatusLabel3";
-            this.toolStripStatusLabel3.Size = new System.Drawing.Size(118, 17);
-            this.toolStripStatusLabel3.Text = "toolStripStatusLabel3";
             // 
             // SimulationForm2D
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(863, 442);
+            this.ClientSize = new System.Drawing.Size(1039, 587);
+            this.Controls.Add(this.comboBox2);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.selectionRangeSliderWrapper2);
@@ -268,5 +279,6 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
+        private System.Windows.Forms.ComboBox comboBox2;
     }
 }

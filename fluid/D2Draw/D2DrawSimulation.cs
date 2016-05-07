@@ -1,6 +1,5 @@
-﻿using fluid.D2Draw.ShaderLoaders;
-using fluid.D3Draw;
-using fluid.CoreDraw;
+﻿using fluid.CoreDraw;
+using fluid.D2Draw.ShaderLoaders;
 using fluid.D3Draw.ShaderLoaders;
 using fluid.Forms;
 using fluid.HMDP;
@@ -170,7 +169,7 @@ namespace fluid.D2Draw
 
             Wall.Render(DX11.DeviceContext);
             worldMatrix = Matrix.Multiply(worldMatrix, Matrix.Translation(-1f, 0.001f, -1f));
-            Physics2DShader.RenderTexture(DX11.DeviceContext, Wall.IndexCount, worldMatrix, viewMatrix, projectionMatrix);
+            Physics2DShader.RenderTexture(DX11.DeviceContext, Wall.IndexCount, worldMatrix, viewMatrix, projectionMatrix, TextureRenderType);
 
             DX11.TurnOffAlphaBlending();
 
@@ -203,7 +202,7 @@ namespace fluid.D2Draw
             Texture2DDescription desc = new Texture2DDescription
             {
                 ArraySize = 1,
-                BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource,
+                BindFlags = BindFlags.RenderTarget | BindFlags.ShaderResource | BindFlags.UnorderedAccess,
                 CpuAccessFlags = CpuAccessFlags.None,
                 Format = Format.R32G32B32A32_Float,
                 Width = DX11.Width,

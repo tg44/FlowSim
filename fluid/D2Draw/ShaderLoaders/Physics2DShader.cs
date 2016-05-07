@@ -6,55 +6,28 @@ using SharpDX.Direct3D11;
 using SharpDX.DXGI;
 using System;
 using Device = SharpDX.Direct3D11.Device;
-using Texture2D = SharpDX.Toolkit.Graphics.Texture2D;
 
 namespace fluid.D2Draw.ShaderLoaders
 {
+
     class Physics2DShader : TextureShader
     {
         InputLayout Layout { get; set; }
 
         Effect eff;
 
-        public Vector3 vDimension = new Vector3(32, 32, 32);
+        public Vector2 vDimension = new Vector2(512, 512);
 
         #region textures
-        public Texture2D volumePressureTex;
-        public Texture2D volumeDivergenceTex;
-        public Texture2D volumeDensityTex;
-        public Texture2D volumeVelocityTex;
-        public Texture2D volumeTempTex;
-        public Texture2D volumeStaticTempTex;
-        public Texture2D volumeWallTex;
-        public Texture2D volumeVelocityFieldTex;
-        public Texture2D nextVelocityTexture;
-        public Texture2D nextDensityTexture;
-        public Texture2D nextPressureTexture;
-        public Texture2D nextTemperatureTexture;
 
-        public ShaderResourceView volumePressuresrv;
-        public ShaderResourceView volumeTempsrv;
-        public ShaderResourceView volumeStaticTempsrv;
-        public ShaderResourceView volumeDivergencesrv;
-        public ShaderResourceView volumeDensitysrv;
-        public ShaderResourceView volumeVelocitysrv;
-        public ShaderResourceView volumeWallTexsrv;
-        public ShaderResourceView volumeVelocityFieldTexsrv;
-        public ShaderResourceView nextVelocityTexturesrv;
-        public ShaderResourceView nextDensityTexturesrv;
-        public ShaderResourceView nextPressureTexturesrv;
-        public ShaderResourceView nextTemperatureTexturesrv;
-
-        public UnorderedAccessView volumePressureTexUav;
-        public UnorderedAccessView volumeDivergenceTexUav;
-        public UnorderedAccessView volumeDensityTexUav;
-        public UnorderedAccessView volumeVelocityTexUav;
-        public UnorderedAccessView volumeTempTexUav;
-        //public UnorderedAccessView volumeVelocityFieldTexUav;
-        public UnorderedAccessView nextVelocityTextureUav;
-        public UnorderedAccessView nextDensityTextureUav;
-        public UnorderedAccessView nextPressureTextureUav;
-        public UnorderedAccessView nextTemperatureTextureUav;
+        public TextureWithNextHelper pressure;
+        public TextureWithNextHelper divergence;
+        public TextureWithNextHelper density;
+        public TextureWithNextHelper velocity;
+        public TextureWithNextHelper temperature;
+        public TextureHelper staticTemperature;
+        public TextureHelper velocyField;
+        public TextureHelper wall;
         #endregion textures
 
         public float dt = 1 / 100.0f;
@@ -76,7 +49,7 @@ namespace fluid.D2Draw.ShaderLoaders
             return true;
         }
 
-        private void InitializeTextures(Device device, SharpDX.Direct3D11.Texture2D wall, SharpDX.Direct3D11.Texture2D temp, SharpDX.Direct3D11.Texture2D velocity)
+        private void InitializeTextures(Device device, SharpDX.Direct3D11.Texture2D wallField, SharpDX.Direct3D11.Texture2D tempField, SharpDX.Direct3D11.Texture2D velocityField)
         {
             Texture2DDescription descR = new Texture2DDescription
             {
@@ -100,47 +73,15 @@ namespace fluid.D2Draw.ShaderLoaders
                 SampleDescription = new SampleDescription(1, 0),
                 Usage = ResourceUsage.Default
             };
-            var toolkitdiv = SharpDX.Toolkit.Graphics.GraphicsDevice.New(device);
+            pressure = new TextureWithNextHelper(descR, device);
+            divergence = new TextureWithNextHelper(descR, device);
+            density = new TextureWithNextHelper(descR, device);
+            velocity = new TextureWithNextHelper(descRGBA, device);
+            temperature = new TextureWithNextHelper(descR, device);
 
-            volumePressureTex = Texture2D.New(toolkitdiv, descR);
-            volumeTempTex = Texture2D.New(toolkitdiv, descRGBA);
-            volumeStaticTempTex = Texture2D.New(toolkitdiv, temp);
-            volumeDensityTex = Texture2D.New(toolkitdiv, descRGBA);
-            volumeVelocityTex = Texture2D.New(toolkitdiv, descRGBA);
-            volumeVelocityFieldTex = Texture2D.New(toolkitdiv, velocity);
-            volumeWallTex = Texture2D.New(toolkitdiv, wall);
-            volumeDivergenceTex = Texture2D.New(toolkitdiv, descR);
-
-            nextVelocityTexture = Texture2D.New(toolkitdiv, descRGBA);
-            nextDensityTexture = Texture2D.New(toolkitdiv, descRGBA);
-            nextPressureTexture = Texture2D.New(toolkitdiv, descR);
-            nextTemperatureTexture = Texture2D.New(toolkitdiv, descR);
-
-            volumePressuresrv = new ShaderResourceView(device, volumePressureTex);
-            volumeTempsrv = new ShaderResourceView(device, volumeTempTex);
-            volumeStaticTempsrv = new ShaderResourceView(device, volumeStaticTempTex);
-            volumeDivergencesrv = new ShaderResourceView(device, volumeDivergenceTex);
-            volumeDensitysrv = new ShaderResourceView(device, volumeDensityTex);
-            volumeVelocitysrv = new ShaderResourceView(device, volumeVelocityTex);
-            volumeVelocityFieldTexsrv = new ShaderResourceView(device, volumeVelocityFieldTex);
-            volumeWallTexsrv = new ShaderResourceView(device, volumeWallTex);
-
-            nextVelocityTexturesrv = new ShaderResourceView(device, nextVelocityTexture);
-            nextDensityTexturesrv = new ShaderResourceView(device, nextDensityTexture);
-            nextPressureTexturesrv = new ShaderResourceView(device, nextPressureTexture);
-            nextTemperatureTexturesrv = new ShaderResourceView(device, nextTemperatureTexture);
-
-            volumePressureTexUav = new UnorderedAccessView(device, volumePressureTex);
-            volumeDivergenceTexUav = new UnorderedAccessView(device, volumeDivergenceTex);
-            volumeDensityTexUav = new UnorderedAccessView(device, volumeDensityTex);
-            volumeVelocityTexUav = new UnorderedAccessView(device, volumeVelocityTex);
-            volumeTempTexUav = new UnorderedAccessView(device, volumeTempTex);
-            //volumeVelocityFieldTexUav = new UnorderedAccessView(device, volumeVelocityFieldTex);
-
-            nextVelocityTextureUav = new UnorderedAccessView(device, nextVelocityTexture);
-            nextDensityTextureUav = new UnorderedAccessView(device, nextDensityTexture);
-            nextPressureTextureUav = new UnorderedAccessView(device, nextPressureTexture);
-            nextTemperatureTextureUav = new UnorderedAccessView(device, nextTemperatureTexture);
+            staticTemperature = new TextureHelper(tempField, device);
+            velocyField = new TextureHelper(velocityField, device);
+            wall = new TextureHelper(descRGBA, device, false);
         }
 
         public override void Dispose()
@@ -153,175 +94,201 @@ namespace fluid.D2Draw.ShaderLoaders
         public ShaderResourceView RenderPhysics(DeviceContext deviceContext)
         {
             // advect + add source
-            eff.GetVariableByName("gridSize").AsVector().Set<Vector3>(ref vDimension);
+            csAdvect(deviceContext);
 
+            //csTermoTransfer(deviceContext);
+            //temperature
+            csBouyancy(deviceContext);
+            ////velocyfield
+            csVelocyField(deviceContext);
+            ////wall
+            //csWall(deviceContext);
+            //// divergence
+            csDivergence(deviceContext);
+            //// jacobi pressure
+            csJacobi(deviceContext, 50);
+
+            csTermoTransfer(deviceContext, 5);
+            //// project
+            csProject(deviceContext);
+
+            return density.SRV;
+        }
+
+        private void csProject(DeviceContext deviceContext)
+        {
             eff.GetVariableByName("dt").AsScalar().Set(dt);
 
-            eff.GetVariableByName("velocity").AsShaderResource().SetResource(volumeVelocitysrv);
-            eff.GetVariableByName("density").AsShaderResource().SetResource(volumeDensitysrv);
-            eff.GetVariableByName("temperature").AsShaderResource().SetResource(volumeTempsrv);
-            eff.GetVariableByName("statictemp").AsShaderResource().SetResource(volumeStaticTempsrv);
-            eff.GetVariableByName("outputVelocity").AsUnorderedAccessView().Set(nextVelocityTextureUav);
-            eff.GetVariableByName("outputDensity").AsUnorderedAccessView().Set(nextDensityTextureUav);
-            eff.GetVariableByName("outputTemperature").AsUnorderedAccessView().Set(nextTemperatureTextureUav);
+            eff.GetVariableByName("gridSize").AsVector().Set<Vector2>(ref vDimension);
+            eff.GetVariableByName("wall").AsShaderResource().SetResource(wall.SRV);
+            eff.GetVariableByName("pressure").AsShaderResource().SetResource(pressure.SRV);
+            eff.GetVariableByName("velocity").AsShaderResource().SetResource(velocity.SRV);
+            eff.GetVariableByName("density").AsShaderResource().SetResource(density.SRV);
+            eff.GetVariableByName("outputVelocity").AsUnorderedAccessView().Set(velocity.UAV);
+            eff.GetVariableByName("outputDensity").AsUnorderedAccessView().Set(density.UAV);
 
-            eff.GetTechniqueByName("gridFluid").GetPassByName("advect").Apply(deviceContext);
-            deviceContext.Dispatch((int)vDimension.X / 128, (int)vDimension.Y, (int)vDimension.Z);
+            eff.GetTechniqueByName("gridFluid").GetPassByName("project").Apply(deviceContext);
+            deviceContext.Dispatch((int)vDimension.X / 128, (int)vDimension.Y, 1);
 
             eff.GetVariableByName("outputVelocity").AsUnorderedAccessView().Set((UnorderedAccessView)null);
             eff.GetVariableByName("outputDensity").AsUnorderedAccessView().Set((UnorderedAccessView)null);
-            eff.GetVariableByName("outputTemperature").AsUnorderedAccessView().Set((UnorderedAccessView)null);
 
-            swap(ref volumeVelocityTex, ref nextVelocityTexture);
-            swap(ref volumeVelocitysrv, ref nextVelocityTexturesrv);
-            swap(ref volumeVelocityTexUav, ref nextVelocityTextureUav);
-
-            swap(ref volumeDensityTex, ref nextDensityTexture);
-            swap(ref volumeDensitysrv, ref nextDensityTexturesrv);
-            swap(ref volumeDensityTexUav, ref nextDensityTextureUav);
-
-            swap(ref volumeTempTex, ref nextTemperatureTexture);
-            swap(ref volumeTempsrv, ref nextTemperatureTexturesrv);
-            swap(ref volumeTempTexUav, ref nextTemperatureTextureUav);
+            velocity.Swap();
 
             deviceContext.ClearState();
+        }
 
-            //temperature
+        private void csJacobi(DeviceContext deviceContext, int iterationNumber)
+        {
+            Vector4 nullColor = new Vector4(0, 0, 0, 0);
+            deviceContext.ClearUnorderedAccessView(pressure.Actual.UAV, nullColor);
+            deviceContext.ClearUnorderedAccessView(pressure.Next.UAV, nullColor);
+            for (int i = 0; i < iterationNumber; i++)
+            {
+                eff.GetVariableByName("dt").AsScalar().Set(dt);
+
+                eff.GetVariableByName("gridSize").AsVector().Set<Vector2>(ref vDimension);
+                eff.GetVariableByName("wall").AsShaderResource().SetResource(wall.SRV);
+                eff.GetVariableByName("divergence").AsShaderResource().SetResource(divergence.SRV);
+                eff.GetVariableByName("pressure").AsShaderResource().SetResource(pressure.SRV);
+                eff.GetVariableByName("outputPressure").AsUnorderedAccessView().Set(pressure.UAV);
+
+                eff.GetTechniqueByName("gridFluid").GetPassByName("jacobiPressure").Apply(deviceContext);
+                deviceContext.Dispatch((int)vDimension.X / 128, (int)vDimension.Y, 1);
+
+                eff.GetVariableByName("outputPressure").AsUnorderedAccessView().Set((UnorderedAccessView)null);
+
+                pressure.Swap();
+
+                deviceContext.ClearState();
+
+            }
+        }
+
+        private void csDivergence(DeviceContext deviceContext)
+        {
             eff.GetVariableByName("dt").AsScalar().Set(dt);
 
-            eff.GetVariableByName("velocity").AsShaderResource().SetResource(volumeVelocitysrv);
-            eff.GetVariableByName("density").AsShaderResource().SetResource(volumeDensitysrv);
-            eff.GetVariableByName("temperature").AsShaderResource().SetResource(volumeTempsrv);
-            eff.GetVariableByName("outputVelocity").AsUnorderedAccessView().Set(nextVelocityTextureUav);
+            eff.GetVariableByName("gridSize").AsVector().Set<Vector2>(ref vDimension);
+            eff.GetVariableByName("velocity").AsShaderResource().SetResource(velocity.SRV);
+            eff.GetVariableByName("wall").AsShaderResource().SetResource(wall.SRV);
+            eff.GetVariableByName("outputDivergence").AsUnorderedAccessView().Set(divergence.UAV);
 
-            eff.GetTechniqueByName("gridFluid").GetPassByName("bouyancy").Apply(deviceContext);
-            deviceContext.Dispatch((int)vDimension.X / 128, (int)vDimension.Y, (int)vDimension.Z);
+            eff.GetTechniqueByName("gridFluid").GetPassByName("divergence").Apply(deviceContext);
+            deviceContext.Dispatch((int)vDimension.X / 128, (int)vDimension.Y, 1);
+
+            eff.GetVariableByName("outputDivergence").AsUnorderedAccessView().Set((UnorderedAccessView)null);
+
+            divergence.Swap();
+
+            deviceContext.ClearState();
+        }
+
+        private void csWall(DeviceContext deviceContext)
+        {
+            eff.GetVariableByName("dt").AsScalar().Set(dt);
+
+            eff.GetVariableByName("velocity").AsShaderResource().SetResource(velocity.SRV);
+            eff.GetVariableByName("wall").AsShaderResource().SetResource(wall.SRV);
+            eff.GetVariableByName("outputVelocity").AsUnorderedAccessView().Set(velocity.UAV);
+
+            eff.GetTechniqueByName("gridFluid").GetPassByName("wall").Apply(deviceContext);
+            deviceContext.Dispatch((int)vDimension.X / 128, (int)vDimension.Y, 1);
 
             eff.GetVariableByName("outputVelocity").AsUnorderedAccessView().Set((UnorderedAccessView)null);
 
-            swap(ref volumeVelocityTex, ref nextVelocityTexture);
-            swap(ref volumeVelocitysrv, ref nextVelocityTexturesrv);
-            swap(ref volumeVelocityTexUav, ref nextVelocityTextureUav);
+            velocity.Swap();
 
             deviceContext.ClearState();
+        }
 
-
-
-            ////velocyfield
+        private void csVelocyField(DeviceContext deviceContext)
+        {
             eff.GetVariableByName("dt").AsScalar().Set(dt);
 
             eff.GetVariableByName("velocyFieldScale").AsScalar().Set(dt);
 
             eff.GetVariableByName("velocyFieldScale").AsScalar().Set(0.5f);
-            eff.GetVariableByName("velocity").AsShaderResource().SetResource(volumeVelocitysrv);
-            eff.GetVariableByName("velocyfield").AsShaderResource().SetResource(volumeVelocityFieldTexsrv);
-            eff.GetVariableByName("outputVelocity").AsUnorderedAccessView().Set(nextVelocityTextureUav);
+            eff.GetVariableByName("velocity").AsShaderResource().SetResource(velocity.SRV);
+            eff.GetVariableByName("velocyfield").AsShaderResource().SetResource(velocyField.SRV);
+            eff.GetVariableByName("outputVelocity").AsUnorderedAccessView().Set(velocity.UAV);
 
             eff.GetTechniqueByName("gridFluid").GetPassByName("velocyfield").Apply(deviceContext);
-            deviceContext.Dispatch((int)vDimension.X / 128, (int)vDimension.Y, (int)vDimension.Z);
+            deviceContext.Dispatch((int)vDimension.X / 128, (int)vDimension.Y, 1);
 
             eff.GetVariableByName("outputVelocity").AsUnorderedAccessView().Set((UnorderedAccessView)null);
 
-            swap(ref volumeVelocityTex, ref nextVelocityTexture);
-            swap(ref volumeVelocitysrv, ref nextVelocityTexturesrv);
-            swap(ref volumeVelocityTexUav, ref nextVelocityTextureUav);
+            velocity.Swap();
 
             deviceContext.ClearState();
-            /*
-            ////wall
+        }
+
+        private void csBouyancy(DeviceContext deviceContext)
+        {
             eff.GetVariableByName("dt").AsScalar().Set(dt);
 
-            eff.GetVariableByName("velocity").AsShaderResource().SetResource(volumeVelocitysrv);
-            eff.GetVariableByName("wall").AsShaderResource().SetResource(volumeWallTexsrv);
-            eff.GetVariableByName("outputVelocity").AsUnorderedAccessView().Set(nextVelocityTextureUav);
+            eff.GetVariableByName("velocity").AsShaderResource().SetResource(velocity.SRV);
+            eff.GetVariableByName("density").AsShaderResource().SetResource(density.SRV);
+            eff.GetVariableByName("temperature").AsShaderResource().SetResource(temperature.SRV);
+            eff.GetVariableByName("outputVelocity").AsUnorderedAccessView().Set(velocity.UAV);
 
-            eff.GetTechniqueByName("gridFluid").GetPassByName("wall").Apply(deviceContext);
-            deviceContext.Dispatch((int)vDimension.X / 128, (int)vDimension.Y, (int)vDimension.Z);
+            eff.GetTechniqueByName("gridFluid").GetPassByName("bouyancy").Apply(deviceContext);
+            deviceContext.Dispatch((int)vDimension.X / 128, (int)vDimension.Y, 1);
 
             eff.GetVariableByName("outputVelocity").AsUnorderedAccessView().Set((UnorderedAccessView)null);
 
-            swap(ref volumeVelocityTex, ref nextVelocityTexture);
-            swap(ref volumeVelocitysrv, ref nextVelocityTexturesrv);
-            swap(ref volumeVelocityTexUav, ref nextVelocityTextureUav);
+            velocity.Swap();
 
             deviceContext.ClearState();
-            */
-            //// divergence
-            eff.GetVariableByName("dt").AsScalar().Set(dt);
+        }
 
-            eff.GetVariableByName("gridSize").AsVector().Set<Vector3>(ref vDimension);
-            eff.GetVariableByName("velocity").AsShaderResource().SetResource(volumeVelocitysrv);
-            eff.GetVariableByName("wall").AsShaderResource().SetResource(volumeWallTexsrv);
-            eff.GetVariableByName("outputDivergence").AsUnorderedAccessView().Set(volumeDivergenceTexUav);
-
-            eff.GetTechniqueByName("gridFluid").GetPassByName("divergence").Apply(deviceContext);
-            deviceContext.Dispatch((int)vDimension.X / 128, (int)vDimension.Y, (int)vDimension.Z);
-
-            eff.GetVariableByName("outputDivergence").AsUnorderedAccessView().Set((UnorderedAccessView)null);
-
-            deviceContext.ClearState();
-
-            //// jacobi pressure
-            Vector4 nullColor = new Vector4(0, 0, 0, 0);
-            //context->ClearUnorderedAccessViewFloat(pressureUav, nullColor);
-            deviceContext.ClearUnorderedAccessView(volumePressureTexUav, nullColor);
-            //context->ClearUnorderedAccessViewFloat(nextPressureUav, nullColor);
-            deviceContext.ClearUnorderedAccessView(nextPressureTextureUav, nullColor);
-            //for(int i=0; i<30; i++)
-            //TODO: ez itt fixen 10
-            for (int i = 0; i < 50; i++)
+        private void csTermoTransfer(DeviceContext deviceContext, int iterationCount)
+        {
+            for (int i = 0; i < iterationCount; i++)
             {
-
-
                 eff.GetVariableByName("dt").AsScalar().Set(dt);
+                eff.GetVariableByName("gridSize").AsVector().Set<Vector2>(ref vDimension);
+                eff.GetVariableByName("temperature").AsShaderResource().SetResource(temperature.SRV);
+                eff.GetVariableByName("outputTemperature").AsUnorderedAccessView().Set(temperature.UAV);
 
-                eff.GetVariableByName("gridSize").AsVector().Set<Vector3>(ref vDimension);
-                eff.GetVariableByName("wall").AsShaderResource().SetResource(volumeWallTexsrv);
-                eff.GetVariableByName("divergence").AsShaderResource().SetResource(volumeDivergencesrv);
-                eff.GetVariableByName("pressure").AsShaderResource().SetResource(volumePressuresrv);
-                eff.GetVariableByName("outputPressure").AsUnorderedAccessView().Set(nextPressureTextureUav);
+                eff.GetTechniqueByName("gridFluid").GetPassByName("termotransfer").Apply(deviceContext);
+                deviceContext.Dispatch((int)vDimension.X / 128, (int)vDimension.Y, 1);
 
-                eff.GetTechniqueByName("gridFluid").GetPassByName("jacobiPressure").Apply(deviceContext);
-                deviceContext.Dispatch((int)vDimension.X / 128, (int)vDimension.Y, (int)vDimension.Z);
+                eff.GetVariableByName("outputTemperature").AsUnorderedAccessView().Set((UnorderedAccessView)null);
 
-                eff.GetVariableByName("outputPressure").AsUnorderedAccessView().Set((UnorderedAccessView)null);
-
-                swap(ref volumePressureTex, ref nextPressureTexture);
-                swap(ref volumePressuresrv, ref nextPressureTexturesrv);
-                swap(ref volumePressureTexUav, ref nextPressureTextureUav);
+                temperature.Swap();
 
                 deviceContext.ClearState();
             }
+        }
 
-            //// project
+        private void csAdvect(DeviceContext deviceContext)
+        {
+            eff.GetVariableByName("gridSize").AsVector().Set<Vector2>(ref vDimension);
+
             eff.GetVariableByName("dt").AsScalar().Set(dt);
 
-            eff.GetVariableByName("gridSize").AsVector().Set<Vector3>(ref vDimension);
-            eff.GetVariableByName("wall").AsShaderResource().SetResource(volumeWallTexsrv);
-            eff.GetVariableByName("pressure").AsShaderResource().SetResource(volumePressuresrv);
-            eff.GetVariableByName("velocity").AsShaderResource().SetResource(volumeVelocitysrv);
-            eff.GetVariableByName("density").AsShaderResource().SetResource(volumeDensitysrv);
-            eff.GetVariableByName("outputVelocity").AsUnorderedAccessView().Set(nextVelocityTextureUav);
-            eff.GetVariableByName("outputDensity").AsUnorderedAccessView().Set(nextDensityTextureUav);
+            eff.GetVariableByName("velocity").AsShaderResource().SetResource(velocity.SRV);
+            eff.GetVariableByName("density").AsShaderResource().SetResource(density.SRV);
+            eff.GetVariableByName("temperature").AsShaderResource().SetResource(temperature.SRV);
+            eff.GetVariableByName("statictemp").AsShaderResource().SetResource(staticTemperature.SRV);
+            eff.GetVariableByName("wall").AsShaderResource().SetResource(wall.SRV);
+            eff.GetVariableByName("outputVelocity").AsUnorderedAccessView().Set(velocity.UAV);
+            eff.GetVariableByName("outputDensity").AsUnorderedAccessView().Set(density.UAV);
+            eff.GetVariableByName("outputTemperature").AsUnorderedAccessView().Set(temperature.UAV);
 
-            eff.GetTechniqueByName("gridFluid").GetPassByName("project").Apply(deviceContext);
-            deviceContext.Dispatch((int)vDimension.X / 128, (int)vDimension.Y, (int)vDimension.Z);
+            eff.GetTechniqueByName("gridFluid").GetPassByName("advect").Apply(deviceContext);
+            deviceContext.Dispatch((int)vDimension.X / 128, (int)vDimension.Y, 1);
 
             eff.GetVariableByName("outputVelocity").AsUnorderedAccessView().Set((UnorderedAccessView)null);
             eff.GetVariableByName("outputDensity").AsUnorderedAccessView().Set((UnorderedAccessView)null);
+            eff.GetVariableByName("outputTemperature").AsUnorderedAccessView().Set((UnorderedAccessView)null);
 
-            swap(ref volumeVelocityTex, ref nextVelocityTexture);
-            swap(ref volumeVelocitysrv, ref nextVelocityTexturesrv);
-            swap(ref volumeVelocityTexUav, ref nextVelocityTextureUav);
+            velocity.Swap();
+            density.Swap();
+            temperature.Swap();
 
-            swap(ref volumeDensityTex, ref nextDensityTexture);
-            swap(ref volumeDensitysrv, ref nextDensityTexturesrv);
-            swap(ref volumeDensityTexUav, ref nextDensityTextureUav);
             deviceContext.ClearState();
-
-
-
-            return volumeDensitysrv;
         }
 
         public override bool Render(DeviceContext deviceContext, int indexCount, Matrix worldMatrix, Matrix viewMatrix, Matrix projectionMatrix, ShaderResourceView texture)
@@ -330,16 +297,38 @@ namespace fluid.D2Draw.ShaderLoaders
             return true;
         }
 
-        public void RenderTexture(DeviceContext deviceContext, int indexCount, Matrix worldMatrix, Matrix viewMatrix, Matrix projectionMatrix)
+        public void RenderTexture(DeviceContext deviceContext, int indexCount, Matrix worldMatrix, Matrix viewMatrix, Matrix projectionMatrix, RenderTextureEnum rendertexType = RenderTextureEnum.def)
         {
 
             Matrix worldViewProj = Matrix.Multiply(Matrix.Multiply(worldMatrix, viewMatrix), projectionMatrix);
 
             EffectTechnique efftech = eff.GetTechniqueByName("gridFluid");
-            EffectPass renderpass = eff.GetTechniqueByName("gridFluid").GetPassByName("visualize");
+            EffectPass renderpass = null;
+            if (RenderTextureEnum.def == rendertexType)
+            {
+                renderpass = eff.GetTechniqueByName("gridFluid").GetPassByName("visualize");
+                eff.GetVariableByName("density").AsShaderResource().SetResource(density.SRV);
+                eff.GetVariableByName("temperature").AsShaderResource().SetResource(temperature.SRV);
+            }
+            else if (RenderTextureEnum.velocity == rendertexType)
+            {
+                renderpass = eff.GetTechniqueByName("gridFluid").GetPassByName("visualizeVel");
+                eff.GetVariableByName("velocity").AsShaderResource().SetResource(velocity.SRV);
+            }
+            else
+            {
+                renderpass = eff.GetTechniqueByName("gridFluid").GetPassByName("visualizeF1");
+                if (RenderTextureEnum.divergence == rendertexType)
+                    eff.GetVariableByName("density").AsShaderResource().SetResource(divergence.SRV);
+                if (RenderTextureEnum.heat == rendertexType)
+                    eff.GetVariableByName("density").AsShaderResource().SetResource(temperature.SRV);
+                if (RenderTextureEnum.pressure == rendertexType)
+                    eff.GetVariableByName("density").AsShaderResource().SetResource(pressure.SRV);
+            }
 
-            eff.GetVariableByName("divergence").AsShaderResource().SetResource(volumeDivergencesrv);
-            eff.GetVariableByName("temperature").AsShaderResource().SetResource(volumeTempsrv);
+
+
+
             eff.GetVariableByName("WorldViewProj").AsMatrix().SetMatrix(worldViewProj);
             eff.GetVariableByName("Heatmap").AsVector().Set(Heat);
             eff.GetVariableByName("Sensitivity").AsVector().Set(Sensitivity);
@@ -385,36 +374,6 @@ namespace fluid.D2Draw.ShaderLoaders
             };
         }
 
-        #region swaps
 
-        private void swap(ref Texture2D a, ref Texture2D b)
-        {
-            Texture2D t = a;
-            a = b;
-            b = t;
-        }
-
-        private void swap(ref SharpDX.Direct3D11.Texture2D a, ref SharpDX.Direct3D11.Texture2D b)
-        {
-            SharpDX.Direct3D11.Texture2D t = a;
-            a = b;
-            b = t;
-        }
-
-        private void swap(ref ShaderResourceView a, ref ShaderResourceView b)
-        {
-            ShaderResourceView t = a;
-            a = b;
-            b = t;
-        }
-
-        private void swap(ref UnorderedAccessView a, ref UnorderedAccessView b)
-        {
-            UnorderedAccessView t = a;
-            a = b;
-            b = t;
-        }
-
-        #endregion swaps
     }
 }
