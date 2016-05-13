@@ -44,6 +44,7 @@
                 <xs:element name="solid-file" type="xs:string"/>
                 <xs:element name="width" type="xs:int"/>
                 <xs:element name="height" type="xs:int"/>
+                <xs:element name="dust" type="xs:boolean" minOccurs="0" maxOccurs="1" />
               </xs:sequence>
             </xs:complexType>
           </xs:element>
@@ -60,6 +61,7 @@
       <xs:enumeration value="gpu" />
       <xs:enumeration value="hdd" />
       <xs:enumeration value="ssd" />
+      <xs:enumeration value="dust" />
     </xs:restriction>
   </xs:simpleType>
   

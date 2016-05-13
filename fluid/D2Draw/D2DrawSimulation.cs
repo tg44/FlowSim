@@ -34,6 +34,7 @@ namespace fluid.D2Draw
         Texture2D throughText;
         Texture2D mergedText;
         ShaderResourceView outsrv;
+        Texture2D dustText;
         #endregion
 
         private Dictionary<HMDPTypeEnum, ShaderResourceView> SRVmap = new Dictionary<HMDPTypeEnum, ShaderResourceView>();
@@ -198,6 +199,7 @@ namespace fluid.D2Draw
             RenderTargetView heatRTV;
             RenderTargetView solidRTV;
             RenderTargetView throughRTV;
+            RenderTargetView dustRTV;
 
             Texture2DDescription desc = new Texture2DDescription
             {
@@ -216,13 +218,16 @@ namespace fluid.D2Draw
             solidText = new Texture2D(DX11.Device, desc);
             throughText = new Texture2D(DX11.Device, desc);
             mergedText = new Texture2D(DX11.Device, desc);
+            dustText = new Texture2D(DX11.Device, desc);
             heatRTV = new RenderTargetView(DX11.Device, heatText);
             solidRTV = new RenderTargetView(DX11.Device, solidText);
             throughRTV = new RenderTargetView(DX11.Device, throughText);
+            dustRTV = new RenderTargetView(DX11.Device, dustText);
 
             RTVmap[HMDPTypeEnum.heat] = heatRTV;
             RTVmap[HMDPTypeEnum.solid] = solidRTV;
             RTVmap[HMDPTypeEnum.throughtput] = throughRTV;
+            RTVmap[HMDPTypeEnum.dust] = dustRTV;
 
             tmpDepthText = new Texture2D(DX11.Device, DX11.DepthStencilBufferInObj.Description);
             tmpDSV = new DepthStencilView(DX11.Device, tmpDepthText, DX11.DepthStencilViewInObj.Description);
@@ -231,6 +236,7 @@ namespace fluid.D2Draw
             SRVmap[HMDPTypeEnum.heat] = new ShaderResourceView(DX11.DeviceContext.Device, heatText);
             SRVmap[HMDPTypeEnum.solid] = new ShaderResourceView(DX11.DeviceContext.Device, solidText);
             SRVmap[HMDPTypeEnum.throughtput] = new ShaderResourceView(DX11.DeviceContext.Device, throughText);
+            SRVmap[HMDPTypeEnum.dust] = new ShaderResourceView(DX11.DeviceContext.Device, dustText);
             SRVmap[HMDPTypeEnum.merged] = new ShaderResourceView(DX11.DeviceContext.Device, mergedText);
             outsrv = SRVmap[HMDPTypeEnum.merged];
             #endregion
@@ -246,7 +252,7 @@ namespace fluid.D2Draw
 
 
             Physics2DShader = new Physics2DShader();
-            Physics2DShader.Initialize(DX11, solidText, heatText, throughText);
+            Physics2DShader.Initialize(DX11, solidText, heatText, throughText, dustText);
 
 
 
@@ -283,6 +289,7 @@ namespace fluid.D2Draw
             DX11.TurnOffInObjectRender();
 
         }
+
 
     }
 }

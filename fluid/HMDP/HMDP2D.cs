@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
+﻿using System.Drawing;
 
 namespace fluid.HMDP
 {
@@ -15,5 +11,7 @@ namespace fluid.HMDP
         public Image Heat { get; set; }
         public Image Throughput { get; set; }
         public Image Solid { get; set; }
+
+        public bool Dust { get; set; }
     }
 }

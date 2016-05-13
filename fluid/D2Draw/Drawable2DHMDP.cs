@@ -22,10 +22,11 @@ namespace fluid.D2Draw
 
         public string Name { get; set; }
         public bool Active { get; set; }
+        public HMDPTypeEnum ActiveHmdpType { get; private set; }
 
         private Texture iconTex;
         private Texture heatTex;
-        private Texture slidTex;
+        private Texture solidTex;
         private Texture throughTex;
 
         //betölti magának a floort
@@ -57,8 +58,8 @@ namespace fluid.D2Draw
             iconTex = Texture;
             heatTex = new Texture();
             heatTex.Initialize(device, Hmdp2D.Heat);
-            slidTex = new Texture();
-            slidTex.Initialize(device, Hmdp2D.Solid);
+            solidTex = new Texture();
+            solidTex.Initialize(device, Hmdp2D.Solid);
             throughTex = new Texture();
             throughTex.Initialize(device, Hmdp2D.Throughput);
 
@@ -69,10 +70,12 @@ namespace fluid.D2Draw
         //switch the actual
         public void switchTexture(HMDPTypeEnum hmdpType)
         {
+            this.ActiveHmdpType = hmdpType;
             if (hmdpType.Equals(HMDPTypeEnum.icon)) Texture = iconTex;
             if (hmdpType.Equals(HMDPTypeEnum.heat)) Texture = heatTex;
-            if (hmdpType.Equals(HMDPTypeEnum.solid)) Texture = slidTex;
+            if (hmdpType.Equals(HMDPTypeEnum.solid)) Texture = solidTex;
             if (hmdpType.Equals(HMDPTypeEnum.throughtput)) Texture = throughTex;
+            if (ActiveHmdpType.Equals(HMDPTypeEnum.dust) && !Hmdp2D.Dust) Texture = solidTex;
         }
 
         internal void Render(DeviceContext deviceContext, Matrix worldMatrix, Matrix viewMatrix, Matrix projectionMatrix, TextureShader textureShader)
@@ -85,6 +88,9 @@ namespace fluid.D2Draw
             {
                 return;
             }
+
+            if (ActiveHmdpType.Equals(HMDPTypeEnum.dust) && !Hmdp2D.Dust) return;
+            if (!(ActiveHmdpType.Equals(HMDPTypeEnum.dust) || ActiveHmdpType.Equals(HMDPTypeEnum.icon)) && Hmdp2D.Dust) return;
 
             base.Render(deviceContext);
 
@@ -124,10 +130,10 @@ namespace fluid.D2Draw
                 heatTex.Dispose();
                 heatTex = null;
             }
-            if (slidTex != null)
+            if (solidTex != null)
             {
-                slidTex.Dispose();
-                slidTex = null;
+                solidTex.Dispose();
+                solidTex = null;
             }
             if (throughTex != null)
             {

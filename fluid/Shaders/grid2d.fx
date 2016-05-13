@@ -4,6 +4,7 @@ Texture2D<float> pressure;
 Texture2D<float> divergence;
 Texture2D<float> temperature;
 Texture2D<float> statictemp;
+Texture2D<float> staticDensity;
 Texture2D<float4> wall;
 Texture2D<float4> velocyfield;
 
@@ -56,6 +57,7 @@ float2 normalize2(float2 input) {
 	return float2(0, 0);
 }
 
+float densityFade = 0.999f;
 
 [numthreads(128, 1, 1)]
 void csAdvect(uint2 dtid : SV_DispatchThreadID)
@@ -92,7 +94,7 @@ void csAdvect(uint2 dtid : SV_DispatchThreadID)
 
 	float t = temperature.SampleLevel(zeroBoundarySampler, actualPos, 0).x;
 	
-	float d = 0.0f;
+	float d = staticDensity.Load(dtl).x;
 	float4 v = float4(0, 0, 0, 0);
 
 
@@ -102,7 +104,7 @@ void csAdvect(uint2 dtid : SV_DispatchThreadID)
 	}
 	else if(w<0.1f) {
 		v = velocity.SampleLevel(zeroBoundarySampler, coord, 0);
-		d = density.SampleLevel(zeroBoundarySampler, coord, 0).x;
+		d = min(density.SampleLevel(zeroBoundarySampler, coord, 0).x*densityFade + d,1);
 		t = temperature.SampleLevel(zeroBoundarySampler, coord, 0).x;
 	}
 	

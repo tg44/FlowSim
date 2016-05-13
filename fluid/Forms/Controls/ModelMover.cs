@@ -36,6 +36,7 @@ namespace fluid.Forms
             nudy.ValueChanged += valChanged;
             nudz.ValueChanged += valChanged;
             nudr.ValueChanged += valChanged;
+            checkBox1.CheckedChanged += valChanged;
         }
 
 
@@ -48,6 +49,7 @@ namespace fluid.Forms
             nudy.ValueChanged -= valChanged;
             nudz.ValueChanged -= valChanged;
             nudr.ValueChanged -= valChanged;
+            checkBox1.CheckedChanged -= valChanged;
 
             nudx.Value = (decimal)Model.X;
             nudy.Value = (decimal)Model.Y;
@@ -62,11 +64,13 @@ namespace fluid.Forms
                 nudz.Enabled = true;
             }
             nudr.Value = (decimal)Model.R;
+            checkBox1.Checked = Model.Active;
 
             nudx.ValueChanged += valChanged;
             nudy.ValueChanged += valChanged;
             nudz.ValueChanged += valChanged;
             nudr.ValueChanged += valChanged;
+            checkBox1.CheckedChanged += valChanged;
         }
 
         private void valChanged(object sender, EventArgs e)
@@ -81,12 +85,7 @@ namespace fluid.Forms
                 Model.Z = (float)nudz.Value;
             }
             Model.R = (float)nudr.Value;
-        }
-
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
-        {
-            if (Model == null) return;
-            Model.Active = !Model.Active;
+            Model.Active = checkBox1.Checked;
         }
     }
 }

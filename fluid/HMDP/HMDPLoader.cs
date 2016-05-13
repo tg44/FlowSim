@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Schema;
@@ -115,6 +113,7 @@ namespace fluid.HMDP
         {
             using (ZipArchive zip = ZipFile.Open(FileName, ZipArchiveMode.Read))
             {
+                bool? f = false;
                 var data = new
                 {
                     width = 0,
@@ -122,7 +121,8 @@ namespace fluid.HMDP
                     icon = "",
                     heat = "",
                     throughput = "",
-                    solid = ""
+                    solid = "",
+                    dust = f
                 };
                 foreach (ZipArchiveEntry entry in zip.Entries)
                 {
@@ -141,7 +141,8 @@ namespace fluid.HMDP
                                       icon = (string)b.Element(XMLNamespace + "icon-file"),
                                       heat = (string)b.Element(XMLNamespace + "heat-file"),
                                       throughput = (string)b.Element(XMLNamespace + "throughput-file"),
-                                      solid = (string)b.Element(XMLNamespace + "solid-file")
+                                      solid = (string)b.Element(XMLNamespace + "solid-file"),
+                                      dust = (bool?)b.Element(XMLNamespace + "dust")
                                   }).First();
                         data = q1;
                     }
@@ -149,6 +150,7 @@ namespace fluid.HMDP
                 HMDP2D ret = new HMDP2D();
                 ret.x = data.width;
                 ret.y = data.height;
+                ret.Dust = data.dust.HasValue ? data.dust.Value : false;
                 foreach (ZipArchiveEntry entry in zip.Entries)
                 {
                     if (entry.FullName == @"2D/" + data.icon)

@@ -26,6 +26,7 @@ namespace fluid.D2Draw.ShaderLoaders
         public TextureWithNextHelper velocity;
         public TextureWithNextHelper temperature;
         public TextureHelper staticTemperature;
+        public TextureHelper staticDust;
         public TextureHelper velocyField;
         public TextureHelper wall;
         #endregion textures
@@ -39,17 +40,17 @@ namespace fluid.D2Draw.ShaderLoaders
 
         public Physics2DShader() { }
 
-        public bool Initialize(DX11 DX11, SharpDX.Direct3D11.Texture2D wall, SharpDX.Direct3D11.Texture2D temp, SharpDX.Direct3D11.Texture2D velocity)
+        public bool Initialize(DX11 DX11, SharpDX.Direct3D11.Texture2D wall, SharpDX.Direct3D11.Texture2D temp, SharpDX.Direct3D11.Texture2D velocity, SharpDX.Direct3D11.Texture2D dust)
         {
             vDimension.X = DX11.Width;
             vDimension.Y = DX11.Height;
             // Initialize the vertex and pixel shaders.
             InitializeShader(DX11.Device, DX11.Handle, "grid2d.fx");
-            InitializeTextures(DX11.Device, wall, temp, velocity);
+            InitializeTextures(DX11.Device, wall, temp, velocity, dust);
             return true;
         }
 
-        private void InitializeTextures(Device device, SharpDX.Direct3D11.Texture2D wallField, SharpDX.Direct3D11.Texture2D tempField, SharpDX.Direct3D11.Texture2D velocityField)
+        private void InitializeTextures(Device device, SharpDX.Direct3D11.Texture2D wallField, SharpDX.Direct3D11.Texture2D tempField, SharpDX.Direct3D11.Texture2D velocityField, SharpDX.Direct3D11.Texture2D dustField)
         {
             Texture2DDescription descR = new Texture2DDescription
             {
@@ -79,9 +80,11 @@ namespace fluid.D2Draw.ShaderLoaders
             velocity = new TextureWithNextHelper(descRGBA, device);
             temperature = new TextureWithNextHelper(descR, device);
 
+
             staticTemperature = new TextureHelper(tempField, device);
             velocyField = new TextureHelper(velocityField, device);
             wall = new TextureHelper(wallField, device, false);
+            staticDust = new TextureHelper(dustField, device, false);
         }
 
         public override void Dispose()
@@ -124,6 +127,7 @@ namespace fluid.D2Draw.ShaderLoaders
             eff.GetVariableByName("pressure").AsShaderResource().SetResource(pressure.SRV);
             eff.GetVariableByName("velocity").AsShaderResource().SetResource(velocity.SRV);
             eff.GetVariableByName("density").AsShaderResource().SetResource(density.SRV);
+            eff.GetVariableByName("staticDensity").AsShaderResource().SetResource(staticDust.SRV);
             eff.GetVariableByName("outputVelocity").AsUnorderedAccessView().Set(velocity.UAV);
             eff.GetVariableByName("outputDensity").AsUnorderedAccessView().Set(density.UAV);
 
