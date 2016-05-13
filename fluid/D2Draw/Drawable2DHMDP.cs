@@ -1,14 +1,10 @@
-﻿using fluid.D3Draw;
+﻿using fluid.CoreDraw;
+using fluid.D3Draw.ShaderLoaders;
 using fluid.Forms;
 using fluid.HMDP;
+using SharpDX;
 using SharpDX.Direct3D11;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SharpDX;
-using fluid.CoreDraw;
-using fluid.D3Draw.ShaderLoaders;
 
 namespace fluid.D2Draw
 {
@@ -25,6 +21,7 @@ namespace fluid.D2Draw
         public double R { get; set; }
 
         public string Name { get; set; }
+        public bool Active { get; set; }
 
         private Texture iconTex;
         private Texture heatTex;
@@ -34,6 +31,7 @@ namespace fluid.D2Draw
         //betölti magának a floort
         public bool Initialize(SharpDX.Direct3D11.Device device)
         {
+            Active = true;
             // Load in the model data.
             if (!LoadModel("Floor.txt", true))
                 return false;
@@ -83,6 +81,11 @@ namespace fluid.D2Draw
         }
         internal void Render(DeviceContext deviceContext, Matrix worldMatrix, Matrix viewMatrix, Matrix projectionMatrix, TextureShader textureShader, bool rotateColor)
         {
+            if (!Active)
+            {
+                return;
+            }
+
             base.Render(deviceContext);
 
             Matrix projection = Matrix.Identity;

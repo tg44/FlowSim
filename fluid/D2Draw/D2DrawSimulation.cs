@@ -183,7 +183,7 @@ namespace fluid.D2Draw
             _camera = new Camera();
 
             // Set the initial position of the camera.
-            _camera.SetPosition(0, 0, 1.3f);
+            _camera.SetPosition(0, 0, 1.1f);
             //TODO: a kamera itt még resetelve van
             //TODO: lefosok egy akkora síkot h kitöltse a kamera képét
 

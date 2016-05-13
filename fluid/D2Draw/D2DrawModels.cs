@@ -92,7 +92,7 @@ namespace fluid.D2Draw
             _camera = new Camera();
 
             // Set the initial position of the camera.
-            _camera.SetPosition(-0.5f, 1.3f, -0.5f);
+            _camera.SetPosition(-0.5f, 1.21f, -0.5f);
             _camera.lookAt = new Vector3(-0.5f, 0f, -0.5f);
 
 

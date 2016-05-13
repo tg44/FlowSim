@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using SharpDX.DXGI;
-using SharpDX.Direct3D11;
-using SharpDX;
-using Buffer = SharpDX.Direct3D11.Buffer;
-using Device = SharpDX.Direct3D11.Device;
+﻿using SharpDX;
 using SharpDX.Direct3D;
+using SharpDX.Direct3D11;
+using SharpDX.DXGI;
+using System;
+using Device = SharpDX.Direct3D11.Device;
 
 namespace fluid.CoreDraw
 {
     class DX11
     {
-        private bool VerticalSyncEnabled = true;
+        private bool VerticalSyncEnabled = false;
         public int VideoCardMemory { get; private set; }
         public string VideoCardDescription { get; private set; }
         public SwapChain SwapChain { get; private set; }

@@ -81,7 +81,7 @@ namespace fluid.D2Draw.ShaderLoaders
 
             staticTemperature = new TextureHelper(tempField, device);
             velocyField = new TextureHelper(velocityField, device);
-            wall = new TextureHelper(descRGBA, device, false);
+            wall = new TextureHelper(wallField, device, false);
         }
 
         public override void Dispose()

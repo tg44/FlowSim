@@ -36,6 +36,7 @@
             this.nudz = new System.Windows.Forms.NumericUpDown();
             this.label4 = new System.Windows.Forms.Label();
             this.nudr = new System.Windows.Forms.NumericUpDown();
+            this.checkBox1 = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.nudx)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudy)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudz)).BeginInit();
@@ -113,10 +114,24 @@
             this.nudr.Size = new System.Drawing.Size(120, 20);
             this.nudr.TabIndex = 6;
             // 
+            // checkBox1
+            // 
+            this.checkBox1.AutoSize = true;
+            this.checkBox1.Checked = true;
+            this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBox1.Location = new System.Drawing.Point(277, 31);
+            this.checkBox1.Name = "checkBox1";
+            this.checkBox1.Size = new System.Drawing.Size(56, 17);
+            this.checkBox1.TabIndex = 8;
+            this.checkBox1.Text = "Active";
+            this.checkBox1.UseVisualStyleBackColor = true;
+            this.checkBox1.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
+            // 
             // ModelMover
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.checkBox1);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.nudr);
             this.Controls.Add(this.label3);
@@ -146,5 +161,6 @@
         private System.Windows.Forms.NumericUpDown nudz;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.NumericUpDown nudr;
+        private System.Windows.Forms.CheckBox checkBox1;
     }
 }

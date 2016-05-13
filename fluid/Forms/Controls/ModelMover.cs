@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace fluid.Forms
@@ -88,6 +81,12 @@ namespace fluid.Forms
                 Model.Z = (float)nudz.Value;
             }
             Model.R = (float)nudr.Value;
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (Model == null) return;
+            Model.Active = !Model.Active;
         }
     }
 }

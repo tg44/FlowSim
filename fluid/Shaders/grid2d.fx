@@ -66,6 +66,7 @@ void csAdvect(uint2 dtid : SV_DispatchThreadID)
 	float2 add = float2(0.5f, 0.5f);
 	float2 inverseSize = float2(1.0f / (gridSize.x), 1.0f / (gridSize.y));
 	float2 coord = (((float2)dtid+add) - u*dt*trans) * inverseSize;
+	float2 actualPos = (((float2)dtid + add)) * inverseSize;
 	//float2 coord = (((float2)dtid+add)) * inverseSize;
 	//float2 coord = float2((dtid.x)*inverseSize.x, (dtid.y)*inverseSize.y);
 
@@ -73,19 +74,41 @@ void csAdvect(uint2 dtid : SV_DispatchThreadID)
 	
 	float statict = statictemp.Load(dtl).x;
 	if (statict < 0)statict = 0;
-	float t = temperature.SampleLevel(zeroBoundarySampler, coord, 0).x;
-	outputTemperature[dtid] = min(statict + t,1);
+
+	float2 step = normalize(coord-actualPos)*inverseSize;
+	float2 pos = actualPos;
+	bool isThereWall = w > 0.1f;
+	/*[loop]
+	for (int i = 0; i < length(u); i++)
+	{
+		isThereWall = wall.SampleLevel(zeroBoundarySampler, pos, 0).w > 0.1f;
+		if (isThereWall) {
+			break;
+		}
+		pos += step;
+	}*/
+
+
+
+	float t = temperature.SampleLevel(zeroBoundarySampler, actualPos, 0).x;
 	
-	if (w > 0.1f) {
-		outputVelocity[dtid] = float4(0, 0, 0, 0);
-		//outputDensity[dtid] = 0.0f;
-		//outputTemperature[dtid] = statict + t;
+	float d = 0.0f;
+	float4 v = float4(0, 0, 0, 0);
+
+
+	if (isThereWall) {
+		//v = velocity.SampleLevel(zeroBoundarySampler, actualPos, 0);
+		//d = density.SampleLevel(zeroBoundarySampler, actualPos, 0).x;
 	}
-	else {
-		outputVelocity[dtid] = velocity.SampleLevel(zeroBoundarySampler, coord,0);
-		outputDensity[dtid] = density.SampleLevel(zeroBoundarySampler, coord,0).x;
-		//outputTemperature[dtid] = statict + t;
+	else if(w<0.1f) {
+		v = velocity.SampleLevel(zeroBoundarySampler, coord, 0);
+		d = density.SampleLevel(zeroBoundarySampler, coord, 0).x;
+		t = temperature.SampleLevel(zeroBoundarySampler, coord, 0).x;
 	}
+	
+	outputVelocity[dtid] = v;
+	outputDensity[dtid] = d;
+	outputTemperature[dtid] = min(statict + t, 1);
 	
 }
 
